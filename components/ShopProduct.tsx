@@ -1,0 +1,390 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ShoppingCart, Check, ChevronRight, Leaf, Award, Droplets, MapPin } from "lucide-react";
+import { PRODUCT_SIZES, type ProductSize } from "@/lib/products";
+import { useLanguage } from "@/context/LanguageContext";
+import { useCart } from "@/context/CartContext";
+import { translations } from "@/lib/translations";
+
+const TRUST_ICONS = [Droplets, Leaf, MapPin, Award] as const;
+
+const CHEMICAL = [
+  { index: "Acidity",        description: "Purity of Olive Oil",           value: "0.24",   limit: "≤ 0.80",  unit: "%"         },
+  { index: "K268",           description: "Low value = high quality",       value: "0.140",  limit: "≤ 0.220", unit: ""          },
+  { index: "K232",           description: "Low value = fresh",              value: "1.598",  limit: "≤ 2.500", unit: ""          },
+  { index: "ΔK",             description: "Level of processing",            value: "-0.004", limit: "≤ 0.01",  unit: ""          },
+  { index: "Peroxide Value", description: "Level of oxidation (rancidity)", value: "5.8",    limit: "≤ 20",    unit: "mEq O₂/kg" },
+] as const;
+
+type NutritionRow = { label: string; value: string; sub: boolean; highlight?: boolean };
+const NUTRITION: NutritionRow[] = [
+  { label: "Energy",               value: "3389 kJ / 824 kcal", sub: false },
+  { label: "Fat",                  value: "91.6 g",             sub: false },
+  { label: "– of which Saturates", value: "13 g",               sub: true  },
+  { label: "– Monounsaturates",    value: "73 g",               sub: true  },
+  { label: "– Polyunsaturates",    value: "5.3 g",              sub: true  },
+  { label: "Carbohydrates",        value: "0 g",                sub: false },
+  { label: "– of which Sugars",    value: "0 g",                sub: true  },
+  { label: "Proteins",             value: "0 g",                sub: false },
+  { label: "Salt",                 value: "0 g",                sub: false },
+  { label: "Vitamin E",            value: "~12 mg (100% NRV*)", sub: false, highlight: true },
+];
+
+const fadeUp = {
+  hidden:  { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: "easeOut" as const } },
+};
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+
+export default function ShopProduct() {
+  const { lang } = useLanguage();
+  const t = translations[lang].shop;
+
+  return (
+    <>
+      {/* Breadcrumb */}
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <nav className="flex items-center gap-2 font-body text-xs text-bark/45 dark:text-cream/40">
+          <Link href="/" className="hover:text-bark/80 dark:hover:text-cream/70 transition-colors">{t.home}</Link>
+          <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.8} />
+          <span className="text-bark dark:text-cream">{t.shopBreadcrumb}</span>
+        </nav>
+      </div>
+
+      {/* Product overview */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20 xl:gap-28">
+
+          {/* Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative"
+          >
+            <div aria-hidden className="absolute -bottom-4 -right-4 h-full w-full rounded-2xl bg-secondary/12 lg:-bottom-5 lg:-right-5" />
+            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-white dark:bg-night-subtle shadow-[0_20px_60px_-12px_rgba(61,43,31,0.18)]">
+              <Image
+                src="/images/bottle-warm.png"
+                alt="Ellaina Extra Virgin Olive Oil — Koroneiki variety from Epirus"
+                fill
+                priority
+                className="object-contain p-8"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+              <Image
+                src="/images/olive-branch-gold.png"
+                alt=""
+                width={100}
+                height={100}
+                className="absolute bottom-5 right-5 opacity-15 pointer-events-none select-none"
+                aria-hidden
+              />
+            </div>
+          </motion.div>
+
+          {/* Text */}
+          <motion.div
+            className="flex flex-col justify-center"
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.p variants={fadeUp} className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary">
+              {t.eyebrow}
+            </motion.p>
+
+            <motion.h1 variants={fadeUp} className="font-heading text-3xl font-bold leading-tight tracking-tight text-bark dark:text-cream sm:text-4xl lg:text-[2.6rem] whitespace-pre-line">
+              {t.heading}
+            </motion.h1>
+
+            <motion.div variants={fadeUp} className="my-6 h-px w-12 bg-secondary" />
+
+            <motion.p variants={fadeUp} className="font-body text-[0.9375rem] leading-[1.78] text-bark/70 dark:text-cream/65">
+              {t.description}
+            </motion.p>
+
+            {/* Trust badges */}
+            <motion.div variants={fadeUp} className="mt-7 flex flex-wrap gap-2.5">
+              {t.trustBadges.map((text, i) => {
+                const Icon = TRUST_ICONS[i];
+                return (
+                  <span key={text} className="inline-flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/10 px-3.5 py-1.5 font-body text-[0.75rem] font-medium text-bark/75 dark:text-cream/70">
+                    <Icon className="h-3.5 w-3.5 text-secondary" strokeWidth={1.8} aria-hidden />
+                    {text}
+                  </span>
+                );
+              })}
+            </motion.div>
+
+            {/* Quick chemical stats */}
+            <motion.div variants={fadeUp} className="mt-8 grid grid-cols-3 gap-3">
+              {[
+                { label: "Acidity",  value: "0.24%", note: "EU max 0.80%" },
+                { label: "Peroxide", value: "5.8",   note: "EU max 20"    },
+                { label: "K232",     value: "1.598",  note: "EU max 2.500" },
+              ].map(({ label, value, note }) => (
+                <div key={label} className="flex flex-col items-center rounded-xl bg-white dark:bg-night-subtle border border-light/70 dark:border-white/8 px-3 py-4 text-center shadow-sm">
+                  <span className="font-body text-[0.6rem] font-semibold uppercase tracking-widest text-bark/40 dark:text-cream/40">{label}</span>
+                  <span className="mt-1 font-heading text-lg font-bold text-primary dark:text-secondary">{value}</span>
+                  <span className="mt-0.5 font-body text-[0.6rem] text-bark/35 dark:text-cream/35">{note}</span>
+                </div>
+              ))}
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="mt-8">
+              <a
+                href="#choose-size"
+                className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-lg active:scale-[0.97]"
+              >
+                <ShoppingCart className="h-4 w-4" strokeWidth={2} />
+                {t.orderNow}
+              </a>
+            </motion.div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* Choose your size */}
+      <section id="choose-size" className="bg-white dark:bg-night-surface py-20 lg:py-28">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+
+          <motion.div
+            className="mb-12 flex flex-col items-center text-center"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            <motion.p variants={fadeUp} className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary">
+              {t.collection}
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="font-heading text-2xl font-bold tracking-tight text-bark dark:text-cream sm:text-3xl">
+              {t.chooseSize}
+            </motion.h2>
+            <motion.div variants={fadeUp} className="mt-5 h-px w-10 bg-secondary" />
+          </motion.div>
+
+          <motion.div
+            className="flex flex-col gap-5"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+          >
+            {PRODUCT_SIZES.map((size) => (
+              <SizeCard key={size.id} size={size} />
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Chemical Analysis */}
+      <section className="bg-cream dark:bg-night py-20 lg:py-28">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+
+          <motion.div
+            className="mb-10 flex flex-col items-center text-center"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            <motion.p variants={fadeUp} className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary">
+              {t.chemLabel}
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="font-heading text-2xl font-bold tracking-tight text-bark dark:text-cream sm:text-3xl">
+              {t.chemHeading}
+            </motion.h2>
+            <motion.div variants={fadeUp} className="mt-5 h-px w-10 bg-secondary" />
+            <motion.p variants={fadeUp} className="mt-5 max-w-lg font-body text-sm leading-relaxed text-bark/60 dark:text-cream/55">
+              {t.chemNote}
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+            className="overflow-hidden rounded-2xl border border-light dark:border-white/8 shadow-sm"
+          >
+            <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/75 sm:grid-cols-[1fr_1fr_auto_auto]">
+              <span>Index</span>
+              <span className="hidden sm:block">What it measures</span>
+              <span className="text-right">Ellaina</span>
+              <span className="text-right">EU Limit</span>
+            </div>
+            {CHEMICAL.map((row, i) => (
+              <div key={row.index} className={["grid grid-cols-[1fr_auto_auto] items-center gap-x-4 px-6 py-4 sm:grid-cols-[1fr_1fr_auto_auto]", i % 2 === 0 ? "bg-white dark:bg-night-surface" : "bg-cream/50 dark:bg-night"].join(" ")}>
+                <div>
+                  <p className="font-body text-sm font-semibold text-bark dark:text-cream">{row.index}</p>
+                  <p className="mt-0.5 font-body text-xs text-bark/50 dark:text-cream/45 sm:hidden">{row.description}</p>
+                </div>
+                <p className="hidden font-body text-xs text-bark/55 dark:text-cream/50 sm:block">{row.description}</p>
+                <span className="text-right font-body text-sm font-bold text-primary dark:text-secondary">
+                  {row.value}
+                  {row.unit ? <span className="ml-0.5 text-[10px] font-normal text-bark/40 dark:text-cream/35">{row.unit}</span> : null}
+                </span>
+                <span className="text-right font-body text-xs text-bark/45 dark:text-cream/40">{row.limit}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <p className="mt-6 text-center font-body text-[0.75rem] leading-relaxed text-bark/45 dark:text-cream/40">
+            {t.chemFootnote}
+          </p>
+        </div>
+      </section>
+
+      {/* Nutritional Information */}
+      <section className="bg-white dark:bg-night-surface py-20 lg:py-28">
+        <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+
+          <motion.div
+            className="mb-10 flex flex-col items-center text-center"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            <motion.p variants={fadeUp} className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary">
+              {t.nutLabel}
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="font-heading text-2xl font-bold tracking-tight text-bark dark:text-cream sm:text-3xl">
+              {t.nutHeading}
+            </motion.h2>
+            <motion.div variants={fadeUp} className="mt-5 h-px w-10 bg-secondary" />
+            <motion.p variants={fadeUp} className="mt-5 font-body text-sm text-bark/55 dark:text-cream/50">{t.nutPer}</motion.p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+            className="overflow-hidden rounded-2xl border border-light/80 dark:border-white/8 shadow-sm"
+          >
+            <div className="flex justify-between bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+              <span>Component</span>
+              <span>Amount</span>
+            </div>
+            {NUTRITION.map((row, i) => (
+              <div
+                key={row.label}
+                className={[
+                  "flex items-center justify-between px-6 py-3.5",
+                  i % 2 === 0 ? "bg-white dark:bg-night-surface" : "bg-cream/40 dark:bg-night",
+                  row.highlight ? "border-t border-secondary/30 bg-secondary/5 dark:bg-secondary/10" : "",
+                ].join(" ")}
+              >
+                <span className={["font-body text-sm", row.sub ? "pl-4 italic text-bark/55 dark:text-cream/50" : "font-medium text-bark dark:text-cream", row.highlight ? "font-semibold text-primary dark:text-secondary not-italic" : ""].join(" ")}>
+                  {row.label}
+                </span>
+                <span className={["font-body text-sm", row.highlight ? "font-bold text-primary dark:text-secondary" : "text-bark/75 dark:text-cream/70"].join(" ")}>
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
+          <p className="mt-5 text-center font-body text-[0.75rem] text-bark/40 dark:text-cream/35">
+            {t.nutFootnote}
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ── Size card ─────────────────────────────────────────────────────────────────
+
+function SizeCard({ size }: { size: ProductSize }) {
+  const [qty,   setQty]   = useState(1);
+  const [added, setAdded] = useState(false);
+  const { lang } = useLanguage();
+  const { addItem } = useCart();
+  const t = translations[lang];
+  const shopT = t.shop;
+  const itemT = (t.products.items as Record<string, { name: string; descriptor: string }>)[size.id];
+  const name       = itemT?.name       || size.name;
+  const descriptor = itemT?.descriptor || size.descriptor;
+
+  const handleAdd = () => {
+    addItem(size, qty);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2500);
+  };
+
+  return (
+    <motion.div
+      variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } } }}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-light dark:border-white/8 bg-white dark:bg-night-subtle shadow-sm transition-shadow duration-300 hover:shadow-[0_12px_40px_-8px_rgba(61,43,31,0.14)] sm:flex-row"
+    >
+      {/* Image */}
+      <div className="relative h-52 w-full shrink-0 overflow-hidden bg-cream dark:bg-night sm:h-auto sm:w-48">
+        {size.image ? (
+          <Image
+            src={size.image}
+            alt={`Ellaina ${size.volume}`}
+            fill
+            className="object-contain p-6 transition-transform duration-500 group-hover:scale-[1.04]"
+            sizes="192px"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-primary/8">
+            <Image
+              src="/images/logo-drop.png"
+              alt=""
+              width={56}
+              height={70}
+              className="opacity-30"
+              aria-hidden
+            />
+            <span className="font-body text-[0.65rem] font-semibold uppercase tracking-widest text-bark/30 dark:text-cream/30">
+              {t.products.photoComingSoon}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-1 flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
+        <div className="flex-1">
+          <h3 className="font-heading text-lg font-bold text-bark dark:text-cream">
+            {name}
+            <span className="ml-2 font-body text-sm font-normal text-bark/45 dark:text-cream/40">({size.volume})</span>
+          </h3>
+          <p className="mt-1.5 font-body text-sm leading-relaxed text-bark/60 dark:text-cream/55">{descriptor}</p>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-start gap-4 sm:items-end">
+          <span className="font-heading text-2xl font-bold text-primary dark:text-secondary">{size.price}</span>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center overflow-hidden rounded-full border border-light dark:border-white/10 bg-cream dark:bg-night">
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Decrease">−</button>
+              <span className="w-7 text-center font-body text-sm font-semibold text-bark dark:text-cream">{qty}</span>
+              <button onClick={() => setQty((q) => q + 1)} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Increase">+</button>
+            </div>
+
+            <button
+              onClick={handleAdd}
+              className={["flex items-center gap-2 rounded-full px-5 py-2.5 font-body text-sm font-semibold tracking-wide transition-all duration-300 active:scale-[0.97]",
+                added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white",
+              ].join(" ")}
+            >
+              {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2} />}
+              {added ? shopT.added : shopT.addToCart}
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
