@@ -1,11 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Droplets, MapPin, Award, Leaf, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-
-const FEATURE_ICONS: LucideIcon[] = [Droplets, MapPin, Award, Leaf];
 
 const headerContainer = {
   hidden: {},
@@ -25,18 +22,18 @@ const gridContainer = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.11,
+      staggerChildren: 0.1,
       delayChildren:   0.05,
     },
   },
 };
 
 const blockVariant = {
-  hidden:  { opacity: 0, y: 28 },
+  hidden:  { opacity: 0, y: 26 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, ease: "easeOut" as const },
+    transition: { duration: 0.6, ease: "easeOut" as const },
   },
 };
 
@@ -48,7 +45,7 @@ export default function Features() {
     <section
       id="features"
       className="bg-primary py-24 lg:py-32"
-      aria-label="Why Ellaina"
+      aria-label="The Ellaina Philosophy"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
@@ -78,36 +75,30 @@ export default function Features() {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5 lg:gap-6"
           variants={gridContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
-          {t.items.map((feature, i) => {
-            const Icon = FEATURE_ICONS[i];
-            return (
-              <motion.div
-                key={i}
-                variants={blockVariant}
-                whileHover={{
-                  scale: 1.04,
-                  transition: { duration: 0.2, ease: "easeOut" as const },
-                }}
-                className="group flex cursor-default flex-col items-center rounded-2xl border border-white/8 p-6 text-center transition-colors duration-300 hover:bg-white/[0.06] lg:p-8"
-              >
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-secondary/15 ring-1 ring-secondary/25 transition-colors duration-300 group-hover:bg-secondary/20">
-                  <Icon className="h-7 w-7 text-secondary" strokeWidth={1.6} aria-hidden />
-                </div>
-                <h3 className="mb-2.5 font-heading text-[1.05rem] font-semibold leading-snug text-cream">
-                  {feature.title}
-                </h3>
-                <p className="font-body text-[0.8125rem] leading-[1.72] text-cream/60">
-                  {feature.description}
-                </p>
-              </motion.div>
-            );
-          })}
+          {t.items.map((feature, i) => (
+            <motion.div
+              key={i}
+              variants={blockVariant}
+              whileHover={{
+                y: -3,
+                transition: { duration: 0.2, ease: "easeOut" as const },
+              }}
+              className="flex cursor-default flex-col items-center rounded-2xl border border-white/10 bg-black/15 px-6 py-9 text-center transition-colors duration-300 hover:border-secondary/30 hover:bg-black/25 lg:px-5"
+            >
+              <h3 className="font-heading text-[1.05rem] font-semibold leading-snug text-cream">
+                {feature.title}
+              </h3>
+              <p className="mt-2.5 font-body text-[0.8125rem] leading-[1.65] text-cream/60">
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
         </motion.div>
 
       </div>

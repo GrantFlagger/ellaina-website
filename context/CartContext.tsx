@@ -12,7 +12,7 @@ import { type ProductSize } from "@/lib/products";
 
 export type CartItem = {
   id:       string;        // product slug — stable unique key
-  name:     string;
+  name:     { el: string; en: string };
   volume:   string;
   price:    number;        // unit price (EUR)
   image:    string | null;

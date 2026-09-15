@@ -1,6 +1,6 @@
 export type ProductSize = {
   id:          string;
-  name:        string;
+  name:        { el: string; en: string };
   volume:      string;
   price:       string;
   priceNum:    number;
@@ -25,7 +25,9 @@ export type DbProduct = {
 export function dbProductToSize(p: DbProduct): ProductSize {
   return {
     id:         p.slug,
-    name:       p.name,
+    // The DB currently stores a single name string — used for both languages
+    // until the `products` table gets its own el/en columns.
+    name:       { el: p.name, en: p.name },
     volume:     p.volume,
     price:      `€${p.price.toFixed(2)}`,
     priceNum:   p.price,
@@ -35,9 +37,9 @@ export function dbProductToSize(p: DbProduct): ProductSize {
 }
 
 export const PRODUCT_SIZES: ProductSize[] = [
-  {
+    {
     id:         "500ml",
-    name:       "Bottle",
+    name:       { el: "Καθημερινή Επιλογή", en: "Everyday Choice" },
     volume:     "500 ml",
     price:      "€13.00",
     priceNum:   13,
@@ -46,7 +48,7 @@ export const PRODUCT_SIZES: ProductSize[] = [
   },
   {
     id:         "750ml",
-    name:       "Bottle",
+    name:       { el: "Οικογενειακή Επιλογή", en: "Family Choice" },
     volume:     "750 ml",
     price:      "€17.00",
     priceNum:   17,
@@ -55,11 +57,11 @@ export const PRODUCT_SIZES: ProductSize[] = [
   },
   {
     id:         "5L",
-    name:       "Litre Can",
+    name:       { el: "Επιλογή του Σεφ", en: "Chef's Choice" },
     volume:     "5 L",
     price:      "€50.00",
     priceNum:   50,
-    descriptor: "Premium extra virgin olive oil in a family-size tin. The perfect choice for bulk use and great value.",
-    image:      null,
+    descriptor: "Professional-grade extra virgin olive oil in a large-format tin, built for demanding kitchens and generous cooking. The choice of chefs who never stop.",
+    image:      "/images/ellaina_can.png",
   },
 ];

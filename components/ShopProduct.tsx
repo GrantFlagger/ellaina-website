@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Check, ChevronRight, Leaf, Award, Droplets, MapPin } from "lucide-react";
+import { ShoppingCart, Check, ChevronRight, Leaf, Award, Droplets, MapPin, FileCheck2 } from "lucide-react";
 import { PRODUCT_SIZES, type ProductSize } from "@/lib/products";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
@@ -18,6 +18,15 @@ const CHEMICAL = [
   { index: "K232",           description: "Low value = fresh",              value: "1.598",  limit: "≤ 2.500", unit: ""          },
   { index: "ΔK",             description: "Level of processing",            value: "-0.004", limit: "≤ 0.01",  unit: ""          },
   { index: "Peroxide Value", description: "Level of oxidation (rancidity)", value: "5.8",    limit: "≤ 20",    unit: "mEq O₂/kg" },
+] as const;
+
+// Flavor profile — 0 to 10 scale, shown as horizontal meters.
+// Adjust these values to match Ellaina's actual sensory panel results.
+const FLAVOR_PROFILE = [
+  { key: "acidity",   labelEl: "Οξύτητα",    labelEn: "Acidity",   value: 3  },
+  { key: "fruity",    labelEl: "Φρουτωδές",  labelEn: "Fruity",    value: 8  },
+  { key: "pungent",   labelEl: "Πικάντικο",  labelEn: "Pungent",   value: 6  },
+  { key: "bitter",    labelEl: "Πικρό",      labelEn: "Bitter",    value: 5  },
 ] as const;
 
 type NutritionRow = { label: string; value: string; sub: boolean; highlight?: boolean };
@@ -46,15 +55,6 @@ export default function ShopProduct() {
 
   return (
     <>
-      {/* Breadcrumb */}
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <nav className="flex items-center gap-2 font-body text-xs text-bark/45 dark:text-cream/40">
-          <Link href="/" className="hover:text-bark/80 dark:hover:text-cream/70 transition-colors">{t.home}</Link>
-          <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.8} />
-          <span className="text-bark dark:text-cream">{t.shopBreadcrumb}</span>
-        </nav>
-      </div>
-
       {/* Product overview */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20 xl:gap-28">
@@ -121,6 +121,28 @@ export default function ShopProduct() {
               })}
             </motion.div>
 
+            {/* Flavor profile */}
+            <motion.div variants={fadeUp} className="mt-8">
+              <span className="font-body text-[0.6875rem] font-semibold uppercase tracking-widest text-bark/40 dark:text-cream/40">
+                {lang === "el" ? "Γευστικό προφίλ" : "Flavor profile"}
+              </span>
+              <div className="mt-3 flex flex-col gap-3">
+                {FLAVOR_PROFILE.map((row) => (
+                  <div key={row.key} className="flex items-center gap-3">
+                    <span className="w-24 shrink-0 font-body text-xs font-medium text-bark/70 dark:text-cream/60">
+                      {lang === "el" ? row.labelEl : row.labelEn}
+                    </span>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bark/10 dark:bg-cream/10">
+                      <div
+                        className="h-full rounded-full bg-secondary"
+                        style={{ width: `${row.value * 10}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Quick chemical stats */}
             <motion.div variants={fadeUp} className="mt-8 grid grid-cols-3 gap-3">
               {[
@@ -136,7 +158,7 @@ export default function ShopProduct() {
               ))}
             </motion.div>
 
-            <motion.div variants={fadeUp} className="mt-8">
+            <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-4">
               <a
                 href="#choose-size"
                 className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-lg active:scale-[0.97]"
@@ -144,6 +166,23 @@ export default function ShopProduct() {
                 <ShoppingCart className="h-4 w-4" strokeWidth={2} />
                 {t.orderNow}
               </a>
+
+              <a
+                href="#chemical-analysis"
+                className="inline-flex items-center gap-1.5 font-body text-sm font-medium text-bark/60 dark:text-cream/55 underline decoration-secondary/50 underline-offset-4 transition-colors hover:text-bark dark:hover:text-cream"
+              >
+                <FileCheck2 className="h-4 w-4 text-secondary" strokeWidth={1.8} />
+                {lang === "el" ? "Δείτε το Lab Certificate" : "View Lab Certificate"}
+              </a>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="mt-3">
+              <Link
+                href="/shipping"
+                className="font-body text-xs text-bark/45 underline decoration-bark/25 underline-offset-4 transition-colors hover:text-bark dark:text-cream/40 dark:decoration-cream/25 dark:hover:text-cream"
+              >
+                {lang === "el" ? " Πολιτική Αποστολής & Επιστροφών" : "Shipping & Returns Policy"}
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -184,8 +223,8 @@ export default function ShopProduct() {
         </div>
       </section>
 
-      {/* Chemical Analysis */}
-      <section className="bg-cream dark:bg-night py-20 lg:py-28">
+      {/* Chemical Analysis — this is what the "Lab Certificate" link above scrolls to */}
+      <section id="chemical-analysis" className="bg-cream dark:bg-night py-20 lg:py-28">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
           <motion.div
@@ -312,7 +351,7 @@ function SizeCard({ size }: { size: ProductSize }) {
   const t = translations[lang];
   const shopT = t.shop;
   const itemT = (t.products.items as Record<string, { name: string; descriptor: string }>)[size.id];
-  const name       = itemT?.name       || size.name;
+  const name       = size.name[lang];
   const descriptor = itemT?.descriptor || size.descriptor;
 
   const handleAdd = () => {
@@ -326,8 +365,7 @@ function SizeCard({ size }: { size: ProductSize }) {
       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } } }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-light dark:border-white/8 bg-white dark:bg-night-subtle shadow-sm transition-shadow duration-300 hover:shadow-[0_12px_40px_-8px_rgba(61,43,31,0.14)] sm:flex-row"
     >
-      {/* Image */}
-      <div className="relative h-52 w-full shrink-0 overflow-hidden bg-cream dark:bg-night sm:h-auto sm:w-48">
+      <Link href={`/shop/${size.id}`} className="relative h-52 w-full shrink-0 overflow-hidden bg-cream dark:bg-night sm:h-auto sm:w-48">
         {size.image ? (
           <Image
             src={size.image}
@@ -351,17 +389,17 @@ function SizeCard({ size }: { size: ProductSize }) {
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Details */}
       <div className="flex flex-1 flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <h3 className="font-heading text-lg font-bold text-bark dark:text-cream">
+        <Link href={`/shop/${size.id}`} className="flex-1">
+          <h3 className="font-heading text-lg font-bold text-bark dark:text-cream transition-colors group-hover:text-primary dark:group-hover:text-secondary">
             {name}
             <span className="ml-2 font-body text-sm font-normal text-bark/45 dark:text-cream/40">({size.volume})</span>
           </h3>
           <p className="mt-1.5 font-body text-sm leading-relaxed text-bark/60 dark:text-cream/55">{descriptor}</p>
-        </div>
+        </Link>
 
         <div className="flex shrink-0 flex-col items-start gap-4 sm:items-end">
           <span className="font-heading text-2xl font-bold text-primary dark:text-secondary">{size.price}</span>

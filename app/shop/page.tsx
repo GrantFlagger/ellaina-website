@@ -15,7 +15,6 @@ export default function ShopPage() {
       <main className="bg-cream dark:bg-night pt-20">
         <ShopProduct />
       </main>
-      <Footer />
     </PageTransition>
   );
 }

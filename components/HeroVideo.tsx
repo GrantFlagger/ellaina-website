@@ -8,10 +8,16 @@
  * <Hero />, so the only thing that changes between options is the backdrop.
  */
 
+import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+
+// Toggle to "left" to compare the drop sitting beside the wordmark
+// instead of above it — quick to flip while we decide which reads better.
+const DROP_POSITION: "top" | "left" = "top";
 
 const container = {
   hidden: {},
@@ -42,8 +48,11 @@ export default function HeroVideo() {
       aria-label="Hero"
     >
       {/* background video */}
+      {/* scale-[1.15] zooms past the baked-in black letterbox bars in the
+          source footage — object-cover alone can't crop those out since
+          they're part of the actual video frame, not empty container space. */}
       <video
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full scale-[1.15] object-cover object-center"
         autoPlay
         muted
         loop
@@ -66,19 +75,38 @@ export default function HeroVideo() {
         initial="hidden"
         animate="visible"
       >
-        <motion.p
+               {/* Brand mark — drop + wordmark, replacing the old eyebrow/heading copy.
+            Sized with clamp()/vmin (smaller of viewport width/height) instead
+            of fixed Tailwind h-* breakpoints, so it scales smoothly on short
+            laptop screens instead of jumping between fixed sizes. */}
+        <motion.div
           variants={fadeUp}
-          className="mb-5 font-body text-xs font-semibold uppercase tracking-[0.28em] text-secondary sm:text-sm"
+          className={
+            DROP_POSITION === "left"
+              ? "flex flex-row items-center gap-5 sm:gap-6"
+              : "flex flex-col items-center gap-5 sm:gap-7"
+          }
         >
-          {t.eyebrow}
-        </motion.p>
-
-        <motion.h1
-          variants={fadeUp}
-          className="font-heading text-balance text-[2.6rem] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-[4.25rem]"
-        >
-          {t.heading}
-        </motion.h1>
+          <Image
+            src="/images/logo-drop.png"
+            alt=""
+            width={70}
+            height={90}
+            priority
+            style={{ height: "clamp(72px, 12vmin, 170px)", width: "auto" }}
+            className="object-contain brightness-0 invert opacity-90"
+            aria-hidden
+          />
+          <Image
+            src="/images/logo.png"
+            alt="Ellaina"
+            width={640}
+            height={230}
+            priority
+            style={{ height: "clamp(170px, 28vmin, 480px)", width: "auto" }}
+            className="object-contain brightness-0 invert"
+          />
+        </motion.div>
 
         <motion.div
           variants={fadeUp}
@@ -96,18 +124,18 @@ export default function HeroVideo() {
           variants={fadeUp}
           className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
         >
-          <a
+          <Link
             href="/shop"
             className="w-full rounded-full bg-secondary px-8 py-3.5 text-sm font-semibold tracking-wide text-bark shadow-lg transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-xl active:scale-[0.97] sm:w-auto"
           >
             {t.shopNow}
-          </a>
-          <a
+          </Link>
+          {/* <Link
             href="#our-story"
             className="w-full rounded-full border border-white/55 px-8 py-3.5 text-sm font-medium tracking-wide text-white transition-all duration-200 hover:border-white hover:bg-white/10 active:scale-[0.97] sm:w-auto"
           >
-            {t.ourStory}
-          </a>
+            {t.ourValues}
+          </Link> */}
         </motion.div>
       </motion.div>
 

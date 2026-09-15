@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { X, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
-import { startCheckout } from "@/lib/checkout";
 
 const euro = (n: number) => `€${n.toFixed(2)}`;
 
@@ -15,32 +14,6 @@ export default function CartDrawer() {
   const { items, subtotal, isOpen, closeCart, removeItem, setQuantity } = useCart();
   const { lang } = useLanguage();
   const t = translations[lang].cart;
-
-  const [loading, setLoading] = useState(false);
-  const [notice,  setNotice]  = useState<string | null>(null);
-
-  const handleCheckout = async () => {
-    setNotice(null);
-    setLoading(true);
-    const result = await startCheckout(items);
-    setLoading(false);
-
-    if (result.ok) {
-      window.location.assign(result.url);
-      return;
-    }
-    if (result.reason === "unconfigured") {
-      setNotice(
-        lang === "el"
-          ? "Η ηλεκτρονική πληρωμή ρυθμίζεται ακόμη. Επικοινώνησε μαζί μας για να ολοκληρώσεις την παραγγελία σου."
-          : "Online payment is still being set up. Please contact us to complete your order."
-      );
-      return;
-    }
-    setNotice(
-      lang === "el" ? "Κάτι πήγε στραβά. Δοκίμασε ξανά." : "Something went wrong. Please try again."
-    );
-  };
 
   return (
     <AnimatePresence>
@@ -109,7 +82,7 @@ export default function CartDrawer() {
                       >
                         <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-cream dark:bg-night">
                           {item.image ? (
-                            <Image src={item.image} alt={item.name} fill className="object-contain p-1.5" sizes="64px" />
+                            <Image src={item.image} alt={item.name[lang]} fill className="object-contain p-1.5" sizes="64px" />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">
                               <Image src="/images/logo-drop.png" alt="" width={28} height={35} className="opacity-25" aria-hidden />
@@ -120,7 +93,7 @@ export default function CartDrawer() {
                         <div className="flex flex-1 flex-col">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <p className="font-heading text-sm font-bold text-bark dark:text-cream">{item.name}</p>
+                              <p className="font-heading text-sm font-bold text-bark dark:text-cream">{item.name[lang]}</p>
                               <p className="font-body text-xs text-bark/50 dark:text-cream/45">{item.volume}</p>
                             </div>
                             <button
@@ -164,24 +137,18 @@ export default function CartDrawer() {
 
                 {/* Footer */}
                 <div className="border-t border-light dark:border-white/10 px-6 py-5">
-                  {notice && (
-                    <p className="mb-3 rounded-lg bg-secondary/12 px-3 py-2.5 font-body text-xs leading-relaxed text-bark/80 dark:text-cream/70">
-                      {notice}
-                    </p>
-                  )}
                   <div className="flex items-center justify-between">
                     <span className="font-body text-sm font-medium text-bark/70 dark:text-cream/65">{t.subtotal}</span>
                     <span className="font-heading text-xl font-bold text-bark dark:text-cream">{euro(subtotal)}</span>
                   </div>
                   <p className="mt-1 font-body text-xs text-bark/45 dark:text-cream/40">{t.shippingNote}</p>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={loading}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white active:scale-[0.98] disabled:opacity-60"
+                  <Link
+                    href="/checkout"
+                    onClick={closeCart}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white active:scale-[0.98]"
                   >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     {t.checkout}
-                  </button>
+                  </Link>
                 </div>
               </>
             )}

@@ -3,24 +3,33 @@
 @tailwind utilities;
 
 :root {
-  /* Brand palette */
-  --color-primary:   #2C4A1E;
-  --color-secondary: #C8A96E;
-  --color-cream:     #F5F0E8;
-  --color-bark:      #3D2B1F;
-  --color-light:     #EAE4D5;
+  /* Brand palette — ένα σημείο αλήθειας.
+     Πιο ανοιχτές τιμές: το πράσινο ανεβαίνει, το καφέ γίνεται ψυχρότερο
+     σκούρο-λαδί, το κρεμ πλησιάζει το χαρτί. */
+  --color-primary:     #5F6F42; /* ήταν #2C4A1E */
+  --color-primary-700: #4A5732; /* hover / pressed */
+  --color-secondary:   #D8AE58; /* ήταν #C8A96E */
+  --color-secondary-600: #B98F3C;
+  --color-cream:       #FAF7EE; /* ήταν #F5F0E8 */
+  --color-paper:       #FDFCF8; /* νέο: το «λευκό» των sections */
+  --color-bark:        #2F2A22; /* ήταν #3D2B1F */
+  --color-light:       #ECE7DA; /* ήταν #EAE4D5 */
 
   /* Semantic tokens — light mode */
   --background: var(--color-cream);
   --foreground: var(--color-bark);
   --accent:     var(--color-secondary);
   --muted:      var(--color-light);
+
+  /* Elevation — μία σκιά, όχι πέντε ad-hoc */
+  --shadow-card: 0 1px 3px rgba(47, 42, 34, 0.07);
+  --shadow-pop:  0 12px 32px -10px rgba(47, 42, 34, 0.22);
 }
 
 .dark {
-  --background: #0F1809;
-  --foreground: #F5F0E8;
-  --muted:      #1A2812;
+  --background: #1A1F14;
+  --foreground: #FAF7EE;
+  --muted:      #242B1B;
 }
 
 @layer base {
@@ -50,6 +59,12 @@
   ::selection {
     background-color: var(--color-secondary);
     color: var(--color-bark);
+  }
+
+  /* Focus: ποτέ browser default */
+  :focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
   }
 }
 

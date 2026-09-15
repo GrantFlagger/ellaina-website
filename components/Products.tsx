@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingCart, Check } from "lucide-react";
 import { PRODUCT_SIZES, dbProductToSize, type ProductSize, type DbProduct } from "@/lib/products";
@@ -113,75 +114,80 @@ function ProductCard({ size }: { size: ProductSize }) {
   const t = translations[lang].products;
   const shopT = translations[lang].shop;
   const itemT = (t.items as Record<string, { name: string; descriptor: string }>)[size.id];
-  const name       = itemT?.name       || size.name;
+  const name       = size.name[lang];
   const descriptor = itemT?.descriptor || size.descriptor;
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    // Prevent the click from bubbling up to the card's Link and navigating away.
+    e.preventDefault();
+    e.stopPropagation();
     addItem(size, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   return (
-    <motion.article
-      variants={cardVariant}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-light/80 dark:border-white/8 bg-white dark:bg-night-subtle shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_52px_-8px_rgba(61,43,31,0.16)]"
-    >
-      {/* Image */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-cream dark:bg-night">
-        {size.image ? (
-          <Image
-            src={size.image}
-            alt={`Ellaina Extra Virgin Olive Oil ${size.volume}`}
-            fill
-            className="object-contain p-6 transition-transform duration-500 group-hover:scale-[1.05]"
-            sizes="(max-width: 640px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-3">
+    <motion.div variants={cardVariant}>
+      <Link
+        href={`/shop/${size.id}`}
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-light/80 dark:border-white/8 bg-white dark:bg-night-subtle shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_52px_-8px_rgba(61,43,31,0.16)]"
+      >
+        {/* Image */}
+        <div className="relative aspect-[3/4] overflow-hidden bg-cream dark:bg-night">
+          {size.image ? (
             <Image
-              src="/images/logo-drop.png"
-              alt=""
-              width={64}
-              height={80}
-              className="opacity-25"
-              aria-hidden
+              src={size.image}
+              alt={`Ellaina Extra Virgin Olive Oil ${size.volume}`}
+              fill
+              className="object-contain p-6 transition-transform duration-500 group-hover:scale-[1.05]"
+              sizes="(max-width: 640px) 100vw, 33vw"
             />
-            <span className="font-body text-[0.65rem] font-semibold uppercase tracking-widest text-bark/25 dark:text-cream/25">
-              {t.photoComingSoon}
-            </span>
-          </div>
-        )}
-        <div aria-hidden className="absolute inset-0 shadow-[inset_0_0_24px_rgba(61,43,31,0.05)]" />
-      </div>
-
-      {/* Body */}
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-heading text-[1.05rem] font-semibold leading-snug text-bark dark:text-cream">
-          {name}
-        </h3>
-        <p className="mt-0.5 font-body text-xs font-semibold uppercase tracking-widest text-bark/35 dark:text-cream/35">
-          {size.volume}
-        </p>
-        <p className="mt-2 font-body text-xs leading-relaxed text-bark/55 dark:text-cream/50 line-clamp-2">
-          {descriptor}
-        </p>
-
-        <div className="mt-auto">
-          <div className="mt-4 flex items-center justify-between border-t border-light/60 dark:border-white/8 pt-4">
-            <span className="font-heading text-lg font-bold text-primary dark:text-secondary">{size.price}</span>
-          </div>
-          <button
-            onClick={handleAdd}
-            className={["mt-4 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[0.8125rem] font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]",
-              added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white",
-            ].join(" ")}
-          >
-            {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2.2} />}
-            {added ? shopT.added : t.orderNow}
-          </button>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-3">
+              <Image
+                src="/images/logo-drop.png"
+                alt=""
+                width={64}
+                height={80}
+                className="opacity-25"
+                aria-hidden
+              />
+              <span className="font-body text-[0.65rem] font-semibold uppercase tracking-widest text-bark/25 dark:text-cream/25">
+                {t.photoComingSoon}
+              </span>
+            </div>
+          )}
+          <div aria-hidden className="absolute inset-0 shadow-[inset_0_0_24px_rgba(61,43,31,0.05)]" />
         </div>
-      </div>
-    </motion.article>
+
+        {/* Body */}
+        <div className="flex flex-1 flex-col p-5">
+          <h3 className="font-heading text-[1.05rem] font-semibold leading-snug text-bark dark:text-cream">
+            {name}
+          </h3>
+          <p className="mt-0.5 font-body text-xs font-semibold uppercase tracking-widest text-bark/35 dark:text-cream/35">
+            {size.volume}
+          </p>
+          <p className="mt-2 font-body text-xs leading-relaxed text-bark/55 dark:text-cream/50 line-clamp-2">
+            {descriptor}
+          </p>
+
+          <div className="mt-auto">
+            <div className="mt-4 flex items-center justify-between border-t border-light/60 dark:border-white/8 pt-4">
+              <span className="font-heading text-lg font-bold text-primary dark:text-secondary">{size.price}</span>
+            </div>
+            <button
+              onClick={handleAdd}
+              className={["mt-4 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[0.8125rem] font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]",
+                added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white",
+              ].join(" ")}
+            >
+              {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2.2} />}
+              {added ? shopT.added : t.orderNow}
+            </button>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   );
 }
