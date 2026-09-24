@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import CheckoutSuccess from "@/components/CheckoutSuccess";
+import { noindexMetadata } from "@/lib/seo";
 
 
-export const metadata: Metadata = {
-  title: "Order Confirmed",
-};
+export const metadata: Metadata = noindexMetadata("Order Confirmed");
 
 export default function CheckoutSuccessPage() {
   return (

@@ -1,5 +1,3 @@
-"use client";
-
 /*
  * Home page — full single-page assembly.
  *
@@ -12,8 +10,7 @@
  *   6. <Testimonials /> — auto-playing directional carousel
  *   7. <Footer />       — 3-column footer with newsletter form
  *
- * HERO A/B: the homepage hero can be either the cinematic 3D scroll journey
- * or a background video. Flip USE_VIDEO_HERO below to compare the two.
+ * HERO A/B: the video / 3D hero switch lives in components/HomeHero.tsx.
  *
  * NOTE: CookbookTeaser and Sustainability sections were removed from the
  * homepage per latest notes — both still exist as standalone pages
@@ -24,30 +21,30 @@
  * scroll progress and wouldn't make sense on inner pages.
  */
 
-import dynamic from "next/dynamic";
+import type { Metadata } from "next";
 import PageTransition from "@/components/PageTransition";
-import HeroVideo      from "@/components/HeroVideo";
+import HomeHero       from "@/components/HomeHero";
 import About          from "@/components/About";
 import Products       from "@/components/Products";
 import Features       from "@/components/Features";
 import Testimonials   from "@/components/Testimonials";
-import Footer         from "@/components/Footer";
 import BottleFillAnimation from "@/components/BottleFillAnimation";
+import { pageMetadata } from "@/lib/seo";
 
-// 3D version is loaded with ssr:false because it boots Three.js (browser-only).
-const HeroJourney = dynamic(() => import("@/components/HeroJourney"), {
-  ssr: false,
+export const metadata: Metadata = pageMetadata({
+  title: "Ellaina — Εξαιρετικό Παρθένο Ελαιόλαδο από την Πρέβεζα",
+  description:
+    "Εξαιρετικό παρθένο ελαιόλαδο Κορωνέικης από το οικογενειακό μας κτήμα στην Πρέβεζα. Ψυχρή έκθλιψη, οξύτητα 0,24%, πιστοποιημένο από διαπιστευμένο εργαστήριο.",
+  path: "/",
+  absoluteTitle: true,
 });
-
-// Comparison switch: true = background video, false = 3D scroll journey.
-const USE_VIDEO_HERO = true;
 
 export default function Home() {
   return (
     <PageTransition>
       <BottleFillAnimation />
       <main>
-        {USE_VIDEO_HERO ? <HeroVideo /> : <HeroJourney />}
+        <HomeHero />
         <Products />
         <About />
         <Features />

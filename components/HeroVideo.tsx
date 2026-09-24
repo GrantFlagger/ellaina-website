@@ -58,7 +58,7 @@ export default function HeroVideo() {
         loop
         playsInline
         preload="auto"
-        poster="/images/hero-grove.png"
+        poster="/images/hero-poster.jpg"
       >
         <source src="/videos/hero.mp4" type="video/mp4" />
       </video>
@@ -97,15 +97,23 @@ export default function HeroVideo() {
             className="object-contain brightness-0 invert opacity-90"
             aria-hidden
           />
-          <Image
-            src="/images/logo.png"
-            alt="Ellaina"
-            width={640}
-            height={230}
-            priority
-            style={{ height: "clamp(170px, 28vmin, 480px)", width: "auto" }}
-            className="object-contain brightness-0 invert"
-          />
+          {/* The wordmark is the page's H1; the sr-only text gives it keywords. */}
+          <h1>
+            <Image
+              src="/images/logo.png"
+              alt="Ellaina"
+              width={640}
+              height={230}
+              priority
+              style={{ height: "clamp(170px, 28vmin, 480px)", width: "auto" }}
+              className="block object-contain brightness-0 invert"
+            />
+            <span className="sr-only">
+              {lang === "el"
+                ? " — Εξαιρετικό Παρθένο Ελαιόλαδο από την Πρέβεζα"
+                : " — Greek Extra Virgin Olive Oil from Preveza"}
+            </span>
+          </h1>
         </motion.div>
 
         <motion.div

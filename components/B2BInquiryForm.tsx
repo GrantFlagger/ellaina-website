@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Loader2, Send } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { insforge } from "@/lib/insforge";
 
+import Honeypot, { isBot } from "@/components/Honeypot";
 type FormState = {
   businessName: string;
   contactName: string;
@@ -56,6 +58,11 @@ export default function B2BInquiryForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBot(e.currentTarget as HTMLFormElement)) {
+      setStatus("sent");
+      setForm(EMPTY);
+      return;
+    }
     setStatus("loading");
 
     const { error } = await insforge.database.from("b2b_inquiries").insert([
@@ -87,12 +94,13 @@ export default function B2BInquiryForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Honeypot />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="b2b-businessName" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.businessName}
           </label>
-          <input
+          <input id="b2b-businessName"
             type="text"
             required
             value={form.businessName}
@@ -101,10 +109,10 @@ export default function B2BInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="b2b-contactName" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.contactName}
           </label>
-          <input
+          <input id="b2b-contactName"
             type="text"
             required
             value={form.contactName}
@@ -113,10 +121,10 @@ export default function B2BInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="b2b-email" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.email}
           </label>
-          <input
+          <input id="b2b-email"
             type="email"
             required
             value={form.email}
@@ -125,10 +133,10 @@ export default function B2BInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="b2b-phone" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.phone}
           </label>
-          <input
+          <input id="b2b-phone"
             type="tel"
             value={form.phone}
             onChange={update("phone")}
@@ -138,10 +146,10 @@ export default function B2BInquiryForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+        <label htmlFor="b2b-message" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
           {t.message}
         </label>
-        <textarea
+        <textarea id="b2b-message"
           required
           rows={4}
           value={form.message}
@@ -150,8 +158,18 @@ export default function B2BInquiryForm() {
         />
       </div>
 
+      <p className="font-body text-xs leading-relaxed text-bark/60 dark:text-cream/55">
+        {lang === "el"
+          ? "Χρησιμοποιούμε αυτά τα στοιχεία μόνο για να απαντήσουμε στο αίτημά σου. Δες την "
+          : "We only use these details to respond to your request. See our "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-secondary">
+          {lang === "el" ? "Πολιτική Απορρήτου" : "Privacy Policy"}
+        </Link>
+        .
+      </p>
+
       {status === "error" && (
-        <p className="font-body text-xs font-medium text-red-500">{t.error}</p>
+        <p role="alert" className="font-body text-xs font-medium text-red-500">{t.error}</p>
       )}
 
       <button

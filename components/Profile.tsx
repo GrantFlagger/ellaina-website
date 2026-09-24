@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import { User, Package, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { mockOrders, getOrderStatusLabel } from "@/lib/orders";
+import { getOrderStatusLabel, type Order } from "@/lib/orders";
+import { getMyOrders } from "@/app/actions/orders";
 
 type SectionId = "account" | "orders";
 
@@ -24,6 +25,9 @@ export default function Profile() {
 
   const [activeSection, setActiveSection] = useState<SectionId>("account");
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [orders, setOrders] = useState<Order[] | null>(null);
   const [form, setForm] = useState({
     name: user?.name ?? "",
     email: user?.email ?? "",
@@ -40,6 +44,18 @@ export default function Profile() {
       router.push("/login");
     }
   }, [isLoading, isAuthenticated, router]);
+
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    getMyOrders()
+      .then((rows) => !cancelled && setOrders(rows))
+      .catch(() => !cancelled && setOrders([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (user) {
@@ -67,9 +83,13 @@ export default function Profile() {
     sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleSave = () => {
-    updateUser({ name: form.name, phone: form.phone });
-    setIsEditing(false);
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError(false);
+    const ok = await updateUser({ name: form.name, phone: form.phone });
+    setSaving(false);
+    if (ok) setIsEditing(false);
+    else setSaveError(true);
   };
 
   if (isLoading || !user) return null;
@@ -112,8 +132,8 @@ export default function Profile() {
                 </button>
               ))}
               <button
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await logout();
                   router.push("/");
                 }}
                 className="mt-4 flex w-full items-center gap-3 rounded-lg px-4 py-3 font-body text-sm text-bark/40 transition-colors hover:text-secondary dark:text-cream/40"
@@ -139,11 +159,18 @@ export default function Profile() {
                 </h2>
                 <button
                   onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                  className="font-body text-sm text-secondary hover:underline"
+                  disabled={saving}
+                  className="font-body text-sm text-secondary hover:underline disabled:opacity-60"
                 >
                   {isEditing ? (l === "el" ? "Αποθήκευση" : "Save") : l === "el" ? "Επεξεργασία" : "Edit"}
                 </button>
               </div>
+
+              {saveError && (
+                <p role="alert" className="mb-6 font-body text-sm text-red-600 dark:text-red-300">
+                  {l === "el" ? "Δεν ήταν δυνατή η αποθήκευση. Δοκίμασε ξανά." : "Couldn't save your changes. Please try again."}
+                </p>
+              )}
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
@@ -198,13 +225,17 @@ export default function Profile() {
                 {sections[1].label[l]}
               </h2>
 
-              {mockOrders.length === 0 ? (
+              {orders === null ? (
+                <p className="font-body text-bark/60 dark:text-cream/60">
+                  {l === "el" ? "Φόρτωση παραγγελιών…" : "Loading orders…"}
+                </p>
+              ) : orders.length === 0 ? (
                 <p className="font-body text-bark/60 dark:text-cream/60">
                   {l === "el" ? "Δεν υπάρχουν παραγγελίες ακόμα." : "No orders yet."}
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {mockOrders.map((order) => (
+                  {orders.map((order) => (
                     <div key={order.id} className="rounded-xl border border-primary/10 p-6 dark:border-secondary/10">
                       <div className="mb-4 flex items-center justify-between">
                         <div>
@@ -225,10 +256,12 @@ export default function Profile() {
                         {order.items.map((item) => (
                           <div key={item.productId} className="flex items-center gap-4">
                             <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-primary/5">
-                              <Image src={item.image} alt={item.name[l]} fill className="object-cover" />
+                              {item.image && (
+                                <Image src={item.image} alt={item.name[l]} fill className="object-cover" sizes="48px" />
+                              )}
                             </div>
                             <p className="flex-1 font-body text-sm text-bark/70 dark:text-cream/70">
-                              {item.name[l]} × {item.quantity}
+                              {item.name[l]} {item.volume} × {item.quantity}
                             </p>
                             <p className="font-body text-sm text-primary dark:text-cream">
                               {(item.price * item.quantity).toFixed(2)}€

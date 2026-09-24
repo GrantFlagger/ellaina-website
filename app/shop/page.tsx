@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import PageTransition from "@/components/PageTransition";
 import ShopProduct   from "@/components/ShopProduct";
-import Footer        from "@/components/Footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Shop",
+export const metadata: Metadata = pageMetadata({
+  title: "Αγόρασε Εξαιρετικό Παρθένο Ελαιόλαδο",
   description:
-    "Order Ellaina Extra Virgin Olive Oil — Koroneiki variety, cold-pressed in Epirus, Greece. Full chemical analysis and nutritional information included.",
-};
+    "Παράγγειλε Ellaina σε 500 ml, 750 ml ή 5 L. Κορωνέικη ποικιλία, ψυχρή έκθλιψη στην Ήπειρο, με πλήρη χημική ανάλυση και διατροφικές πληροφορίες.",
+  path: "/shop",
+});
 
 export default function ShopPage() {
   return (

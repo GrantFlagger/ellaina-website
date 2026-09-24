@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import PrivacyPolicy from "@/components/PrivacyPolicy";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Πολιτική Απορρήτου",
+  description: "Πώς η Ellaina Olive Oil συλλέγει, χρησιμοποιεί και προστατεύει τα προσωπικά σου δεδομένα.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

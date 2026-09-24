@@ -26,8 +26,8 @@ const ADVANTAGES = [
     icon: "/images/sun.png",
     titleEl: "Άφθονος Ήλιος",
     titleEn: "Abundant Sunlight",
-    bodyEl: "Πάνω από 2.500 ώρες ηλιοφάνειας τον χρόνο εξασφαλίζουν ιδανική ωρίμανση και πλούσια ανάπτυξη πολυφαινολών.",
-    bodyEn: "Over 2,500 hours of sunshine each year ensure optimal ripening and rich phenolic development.",
+    bodyEl: "Πάνω από 2.500 ώρες ηλιοφάνειας τον χρόνο εξασφαλίζουν ιδανική, ισορροπημένη ωρίμανση του καρπού.",
+    bodyEn: "Over 2,500 hours of sunshine each year ensure full, balanced ripening of the fruit.",
   },
   {
     key: "wind",
@@ -50,8 +50,8 @@ const ADVANTAGES = [
     icon: "/images/olives.png",
     titleEl: "Ποικιλία Κορωνέικη",
     titleEn: "Koroneiki Variety",
-    bodyEl: "Απόλυτα προσαρμοσμένη σε αυτό το έδαφος, δίνει λάδι με έντονη φρουτώδη γεύση και υψηλά αντιοξειδωτικά.",
-    bodyEn: "Perfectly adapted to this environment, gives oil with intense fruitiness and high antioxidants.",
+    bodyEl: "Απόλυτα προσαρμοσμένη σε αυτό το έδαφος, δίνει λάδι με έντονη φρουτώδη γεύση και ευχάριστη πικάντικη επίγευση.",
+    bodyEn: "Perfectly adapted to this environment, gives oil with intense fruitiness and a pleasantly peppery finish.",
   },
   {
     key: "people",
@@ -72,8 +72,8 @@ const ADVANTAGES = [
 ] as const;
 
 const RESULT_POINTS = [
-  { el: "Πλούσιο σε φυσικά αντιοξειδωτικά", en: "High in natural antioxidants" },
-  { el: "Υψηλή περιεκτικότητα σε πολυφαινόλες", en: "Rich in polyphenols" },
+  { el: "Υψηλή περιεκτικότητα σε μονοακόρεστα λιπαρά", en: "High in monounsaturated fat" },
+  { el: "Φυσική πηγή βιταμίνης Ε", en: "Natural source of vitamin E" },
   { el: "Χαμηλή οξύτητα", en: "Low acidity" },
   { el: "Έντονο άρωμα και φρουτώδης γεύση", en: "Intense aroma & fruity taste" },
   { el: "Ισορροπημένο, απαλό, χαρακτηριστικό", en: "Balanced, smooth, distinctive" },

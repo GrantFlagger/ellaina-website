@@ -2,104 +2,84 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
   type ReactNode,
 } from "react";
+import {
+  getSessionUser,
+  signOut,
+  updateProfile,
+} from "@/app/actions/auth";
+import type { AuthUser, WishlistProduct } from "@/lib/auth-types";
 
-export type WishlistProduct = {
-  id: string;
-  slug: string;
-  name: { el: string; en: string };
-  image: string;
-};
-
-export type AuthUser = {
-  name: string;
-  email: string;
-  phone?: string;
-  wishlist?: WishlistProduct[];
-};
+export type { AuthUser, WishlistProduct };
 
 type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  /** Store the user returned by a successful sign-in/verification action. */
   login: (user: AuthUser) => void;
-  logout: () => void;
-  updateUser: (data: Partial<AuthUser>) => void;
+  logout: () => Promise<void>;
+  /** Saves name/phone/gender to the InsForge profile; resolves false on failure. */
+  updateUser: (data: Partial<Pick<AuthUser, "name" | "phone" | "gender">>) => Promise<boolean>;
   toggleWishlist: (product: WishlistProduct) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "ellaina_auth_user";
+// The session itself lives in InsForge auth cookies; only the wishlist is
+// kept in the browser, per account.
+const wishlistKey = (userId: string) => `ellaina_wishlist_${userId}`;
 
-/*
- * Front-end-only auth state for now: persists to localStorage so the
- * Navbar reflects a logged-in profile across refreshes/pages without a
- * real backend yet. Swap `login`/`logout`/`updateUser` for real API calls
- * (e.g. insforge.auth.signIn / signOut / updateProfile) once the backend
- * is wired up — the shape of this context can stay the same, so
- * consuming components (Navbar, AuthForm, Profile) won't need to change.
- */
+function readWishlist(userId: string): WishlistProduct[] {
+  try {
+    const raw = window.localStorage.getItem(wishlistKey(userId));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setUser(JSON.parse(raw));
-    } catch {
-      // ignore malformed storage
-    } finally {
-      setIsLoading(false);
-    }
+  const login = useCallback((nextUser: AuthUser) => {
+    setUser({ ...nextUser, wishlist: readWishlist(nextUser.id) });
   }, []);
 
-  const persist = (nextUser: AuthUser | null) => {
-    setUser(nextUser);
-    try {
-      if (nextUser) {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-      } else {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch {
-      // storage unavailable — state still updates for this session
-    }
+  useEffect(() => {
+    let cancelled = false;
+    getSessionUser()
+      .then((sessionUser) => {
+        if (cancelled) return;
+        if (sessionUser) login(sessionUser);
+      })
+      .catch(() => {
+        // Treat a failed session check as signed out.
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [login]);
+
+  const logout = async () => {
+    setUser(null);
+    await signOut();
   };
 
-  const login = (nextUser: AuthUser) => {
-    // Merge onto any existing stored profile so phone/wishlist survive
-    // a login -> logout -> login cycle during development.
-    setUser((prev) => {
-      const merged: AuthUser =
-        prev && prev.email === nextUser.email ? { ...prev, ...nextUser } : nextUser;
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      } catch {
-        // ignore
-      }
-      return merged;
-    });
-  };
-
-  const logout = () => persist(null);
-
-  const updateUser = (data: Partial<AuthUser>) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const next = { ...prev, ...data };
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
+  const updateUser: AuthContextValue["updateUser"] = async (data) => {
+    const result = await updateProfile(data);
+    if (!result.ok) return false;
+    setUser((prev) => (prev ? { ...prev, ...result.user, wishlist: prev.wishlist } : prev));
+    return true;
   };
 
   const toggleWishlist = (product: WishlistProduct) => {
@@ -110,13 +90,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const wishlist = exists
         ? current.filter((p) => p.id !== product.id)
         : [...current, product];
-      const next = { ...prev, wishlist };
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        window.localStorage.setItem(wishlistKey(prev.id), JSON.stringify(wishlist));
       } catch {
-        // ignore
+        // storage unavailable — state still updates for this session
       }
-      return next;
+      return { ...prev, wishlist };
     });
   };
 

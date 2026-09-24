@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { COMPANY, companyLine } from "@/lib/company";
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 20 },
@@ -19,22 +20,67 @@ export default function PrivacyPolicy() {
           eyebrow: "Νομικές Πληροφορίες",
           heading: "Πολιτική Απορρήτου",
           intro:
-            "Στην Ellaina σεβόμαστε την ιδιωτικότητά σας. Αυτή η σελίδα εξηγεί ποιες πληροφορίες συλλέγουμε, πώς τις χρησιμοποιούμε, και πώς προστατεύουμε τα δεδομένα σας.",
+            "Στην Ellaina σεβόμαστε την ιδιωτικότητά σας. Αυτή η σελίδα εξηγεί ποιες πληροφορίες συλλέγουμε, γιατί, για πόσο τις κρατάμε, με ποιους τις μοιραζόμαστε και ποια δικαιώματα έχετε, σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (ΓΚΠΔ) και τον ν. 4624/2019. Τελευταία ενημέρωση: 24 Σεπτεμβρίου 2026.",
           sections: [
             {
-              title: "Απόρρητο",
+              title: "Υπεύθυνος Επεξεργασίας",
               items: [
-                "Συλλέγουμε μόνο τις πληροφορίες που είναι απαραίτητες για την επεξεργασία των παραγγελιών σας και τη βελτίωση της εμπειρίας αγορών σας.",
-                "Τα προσωπικά σας στοιχεία (όπως όνομα, διεύθυνση, email και στοιχεία πληρωμής) παραμένουν εμπιστευτικά και δεν πωλούνται ούτε κοινοποιούνται σε τρίτους, εκτός αν αυτό απαιτείται για την ολοκλήρωση της παραγγελίας σας (π.χ. εταιρείες μεταφορών, πάροχοι πληρωμών).",
-                "Μπορείτε να επικοινωνήσετε μαζί μας ανά πάσα στιγμή για να δείτε, να ενημερώσετε, ή να ζητήσετε τη διαγραφή των προσωπικών σας δεδομένων.",
+                companyLine("el"),
+                `Για οποιοδήποτε θέμα σχετικά με τα δεδομένα σας, επικοινωνήστε μαζί μας στο ${COMPANY.email}.`,
+              ],
+            },
+            {
+              title: "Ποια δεδομένα συλλέγουμε και γιατί",
+              items: [
+                "Παραγγελίες: ονοματεπώνυμο, email, τηλέφωνο και διεύθυνση αποστολής, για την εκτέλεση και παράδοση της παραγγελίας σας (εκτέλεση σύμβασης — άρθρο 6 παρ. 1 στοιχ. β ΓΚΠΔ) και για την τήρηση φορολογικών υποχρεώσεων (νομική υποχρέωση — άρθρο 6 παρ. 1 στοιχ. γ). Το τηλέφωνο χρειάζεται για την επικοινωνία της εταιρείας ταχυμεταφορών μαζί σας.",
+                "Φόρμα επικοινωνίας και φόρμες B2B: όνομα, email, (προαιρετικά) τηλέφωνο, στοιχεία επιχείρησης και το μήνυμά σας, για να απαντήσουμε στο αίτημά σας (προσυμβατικά μέτρα ή έννομο συμφέρον — άρθρο 6 παρ. 1 στοιχ. β/στ).",
+                "Newsletter: email και γλώσσα προτίμησης, μόνο εφόσον εγγραφείτε (συγκατάθεση — άρθρο 6 παρ. 1 στοιχ. α). Μπορείτε να ανακαλέσετε τη συγκατάθεσή σας οποιαδήποτε στιγμή μέσω του συνδέσμου διαγραφής σε κάθε email ή γράφοντάς μας.",
+                "Πληρωμές: τα στοιχεία κάρτας εισάγονται απευθείας στη σελίδα πληρωμής της Stripe. Εμείς δεν λαμβάνουμε ούτε αποθηκεύουμε ποτέ τον αριθμό της κάρτας σας.",
+                "Δεν χρησιμοποιούμε τα δεδομένα σας για αυτοματοποιημένη λήψη αποφάσεων ή κατάρτιση προφίλ, και δεν τα πωλούμε σε κανέναν.",
+              ],
+            },
+            {
+              title: "Με ποιους τα μοιραζόμαστε",
+              items: [
+                "InsForge — φιλοξενία της βάσης δεδομένων μας, σε διακομιστές εντός ΕΕ (Φρανκφούρτη).",
+                "Stripe Payments Europe Ltd — επεξεργασία πληρωμών. Η Stripe ενεργεί και ως αυτοτελής υπεύθυνος επεξεργασίας για την πρόληψη απάτης· δείτε την πολιτική απορρήτου της στο stripe.com/privacy.",
+                "Ο πάροχος φιλοξενίας της ιστοσελίδας μας, που καταγράφει τεχνικά δεδομένα (π.χ. διεύθυνση IP) για την ασφαλή λειτουργία του site.",
+                "Εταιρείες ταχυμεταφορών, μόνο με τα στοιχεία που χρειάζονται για την παράδοση.",
+                "Ο λογιστής μας και οι φορολογικές αρχές, όπου το απαιτεί ο νόμος.",
+                "Ορισμένοι πάροχοι (π.χ. η Stripe) ενδέχεται να διαβιβάζουν δεδομένα εκτός ΕΟΧ, με κατάλληλες εγγυήσεις (Πλαίσιο Προστασίας Δεδομένων ΕΕ-ΗΠΑ ή Τυποποιημένες Συμβατικές Ρήτρες).",
+              ],
+            },
+            {
+              title: "Για πόσο τα κρατάμε",
+              items: [
+                "Στοιχεία παραγγελιών και παραστατικά: για όσο διάστημα ορίζει η φορολογική νομοθεσία.",
+                "Μηνύματα επικοινωνίας και αιτήματα B2B: έως 2 χρόνια από την τελευταία μας επικοινωνία, εκτός αν προκύψει συνεργασία.",
+                "Newsletter: μέχρι να διαγραφείτε.",
+              ],
+            },
+            {
+              title: "Cookies & Αποθήκευση στον Browser",
+              items: [
+                "Δεν χρησιμοποιούμε cookies ανάλυσης επισκεψιμότητας, διαφήμισης ή παρακολούθησης.",
+                "Αποθηκεύουμε τοπικά στον browser σας (localStorage) μόνο ό,τι είναι απαραίτητο για τη λειτουργία του site: το περιεχόμενο του καλαθιού σας και τη γλώσσα που επιλέξατε. Αυτά δεν αποστέλλονται σε εμάς και μπορείτε να τα διαγράψετε από τις ρυθμίσεις του browser σας.",
+                "Όταν μεταβαίνετε στη σελίδα πληρωμής, η Stripe ενδέχεται να ορίσει δικά της cookies, απαραίτητα για την ασφάλεια της συναλλαγής και την πρόληψη απάτης.",
+                "Αν στο μέλλον προσθέσουμε εργαλεία ανάλυσης ή μάρκετινγκ, θα ζητάμε πρώτα τη συγκατάθεσή σας.",
+              ],
+            },
+            {
+              title: "Τα δικαιώματά σας",
+              items: [
+                "Έχετε δικαίωμα πρόσβασης, διόρθωσης, διαγραφής, περιορισμού της επεξεργασίας, φορητότητας και εναντίωσης, καθώς και δικαίωμα να ανακαλέσετε οποιαδήποτε συγκατάθεση, χωρίς να θίγεται η νομιμότητα της επεξεργασίας πριν από την ανάκληση.",
+                `Για να ασκήσετε τα δικαιώματά σας, γράψτε μας στο ${COMPANY.email}. Θα απαντήσουμε εντός ενός μήνα.`,
+                "Έχετε επίσης δικαίωμα να υποβάλετε καταγγελία στην Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα (Κηφισίας 1-3, 115 23 Αθήνα, www.dpa.gr).",
               ],
             },
             {
               title: "Ασφάλεια",
               items: [
-                "Η ιστοσελίδα μας χρησιμοποιεί ασφαλή κρυπτογράφηση SSL για την προστασία των δεδομένων σας κατά τις συναλλαγές.",
+                "Η ιστοσελίδα μας χρησιμοποιεί κρυπτογράφηση SSL/TLS για την προστασία των δεδομένων σας.",
                 "Τα στοιχεία πληρωμής επεξεργάζονται μέσω αξιόπιστων, ασφαλών παρόχων πληρωμών — δεν αποθηκεύουμε τα στοιχεία της κάρτας σας.",
-                "Ελέγχουμε τακτικά τα συστήματά μας ώστε να διασφαλίζεται το υψηλότερο επίπεδο προστασίας των δεδομένων σας.",
+                "Ελέγχουμε τακτικά τα συστήματά μας ώστε να διασφαλίζεται η προστασία των δεδομένων σας.",
               ],
             },
             {
@@ -52,22 +98,67 @@ export default function PrivacyPolicy() {
           eyebrow: "Legal Information",
           heading: "Privacy Policy",
           intro:
-            "At Ellaina, we respect your privacy. This page explains what information we collect, how we use it, and how we protect your data.",
+            "At Ellaina, we respect your privacy. This page explains what information we collect, why, how long we keep it, who we share it with, and what rights you have under the General Data Protection Regulation (GDPR) and Greek Law 4624/2019. Last updated: 24 September 2026.",
           sections: [
             {
-              title: "Privacy",
+              title: "Data Controller",
               items: [
-                "We only collect information necessary to process your orders and improve your shopping experience.",
-                "Your personal details (such as name, address, email, and payment information) are kept confidential and never sold or shared with third parties, except when required to complete your order (e.g., shipping providers, payment processors).",
-                "You may contact us at any time to review, update, or request the removal of your personal information.",
+                companyLine("en"),
+                `For any question about your data, contact us at ${COMPANY.email}.`,
               ],
             },
             {
-              title: "Safety",
+              title: "What we collect and why",
               items: [
-                "Our website uses secure SSL encryption to protect your data during transactions.",
+                "Orders: name, email, phone and shipping address, to process and deliver your order (performance of a contract — GDPR Art. 6(1)(b)) and to meet our tax obligations (legal obligation — Art. 6(1)(c)). Your phone number is needed so the courier can reach you.",
+                "Contact and B2B forms: name, email, (optionally) phone, business details and your message, so we can reply to your request (pre-contractual steps or legitimate interest — Art. 6(1)(b)/(f)).",
+                "Newsletter: email and preferred language, only if you subscribe (consent — Art. 6(1)(a)). You can withdraw consent at any time via the unsubscribe link in every email or by writing to us.",
+                "Payments: card details are entered directly on Stripe's payment page. We never receive or store your card number.",
+                "We do not use your data for automated decision-making or profiling, and we never sell it.",
+              ],
+            },
+            {
+              title: "Who we share it with",
+              items: [
+                "InsForge — hosting of our database, on servers in the EU (Frankfurt).",
+                "Stripe Payments Europe Ltd — payment processing. Stripe also acts as an independent controller for fraud prevention; see its privacy policy at stripe.com/privacy.",
+                "Our website hosting provider, which logs technical data (e.g. IP address) to run the site securely.",
+                "Courier companies, only with the details needed for delivery.",
+                "Our accountant and the tax authorities, where required by law.",
+                "Some providers (e.g. Stripe) may transfer data outside the EEA, under appropriate safeguards (EU-US Data Privacy Framework or Standard Contractual Clauses).",
+              ],
+            },
+            {
+              title: "How long we keep it",
+              items: [
+                "Order details and invoices: for as long as tax law requires.",
+                "Contact messages and B2B inquiries: up to 2 years after our last communication, unless a business relationship follows.",
+                "Newsletter: until you unsubscribe.",
+              ],
+            },
+            {
+              title: "Cookies & Browser Storage",
+              items: [
+                "We do not use analytics, advertising or tracking cookies.",
+                "We store only what the site needs to work in your browser's local storage: your cart contents and your chosen language. This data is not sent to us, and you can clear it from your browser settings.",
+                "When you go to the payment page, Stripe may set its own cookies, which are necessary for transaction security and fraud prevention.",
+                "If we add analytics or marketing tools in the future, we will ask for your consent first.",
+              ],
+            },
+            {
+              title: "Your rights",
+              items: [
+                "You have the right to access, rectify, erase, restrict processing of, and port your data, and to object to processing, as well as to withdraw any consent at any time, without affecting the lawfulness of processing before withdrawal.",
+                `To exercise your rights, write to us at ${COMPANY.email}. We will reply within one month.`,
+                "You also have the right to lodge a complaint with the Hellenic Data Protection Authority (1-3 Kifisias Ave., 115 23 Athens, www.dpa.gr).",
+              ],
+            },
+            {
+              title: "Security",
+              items: [
+                "Our website uses SSL/TLS encryption to protect your data.",
                 "Payment information is processed through trusted, secure payment gateways — we do not store your credit card details.",
-                "We regularly review our systems to ensure the highest level of protection for your data.",
+                "We regularly review our systems to keep your data protected.",
               ],
             },
             {

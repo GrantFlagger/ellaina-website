@@ -19,7 +19,10 @@ const fadeUp = {
   },
 };
 
-export default function About() {
+export default function About({ headingLevel = "h2" }: { headingLevel?: "h1" | "h2" } = {}) {
+  // Rendered on more than one page: the page decides whether this is its H1.
+  const Heading = headingLevel === "h1" ? motion.h1 : motion.h2;
+
   const { lang } = useLanguage();
   const l = lang as "el" | "en";
   const t = translations[lang].about;
@@ -70,12 +73,12 @@ export default function About() {
           >
             {lang === "el" ? "Οι αξίες μας" : "Our values"}
           </motion.p>
-          <motion.h2
+          <Heading
             variants={fadeUp}
             className="font-heading text-balance max-w-2xl text-3xl font-bold leading-[1.15] tracking-tight text-bark dark:text-cream sm:text-4xl lg:text-[2.9rem]"
           >
             {t.heading}
-          </motion.h2>
+          </Heading>
           <motion.div variants={fadeUp} className="mt-6 h-px w-12 bg-secondary" />
         </motion.div>
 

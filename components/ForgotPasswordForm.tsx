@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Loader2, ArrowRight, ArrowLeft, MailCheck } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { resetPasswordWithCode, sendPasswordReset } from "@/app/actions/auth";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -25,26 +26,46 @@ const COPY = {
   el: {
     eyebrow: "Επαναφορά κωδικού",
     heading: "Ξέχασες τον κωδικό σου;",
-    sub: "Γράψε το email του λογαριασμού σου και θα σου στείλουμε σύνδεσμο επαναφοράς.",
+    sub: "Γράψε το email του λογαριασμού σου και θα σου στείλουμε έναν 6ψήφιο κωδικό επαναφοράς.",
     email: "Email",
-    submit: "Αποστολή συνδέσμου",
+    submit: "Αποστολή κωδικού",
+    codeHeading: "Όρισε νέο κωδικό",
+    codeSub: (email: string) => `Αν υπάρχει λογαριασμός για το ${email}, σου στείλαμε έναν 6ψήφιο κωδικό. Γράψε τον μαζί με τον νέο σου κωδικό.`,
+    code: "Κωδικός από το email",
+    password: "Νέος κωδικός",
+    confirmPassword: "Επιβεβαίωση κωδικού",
+    save: "Αποθήκευση κωδικού",
+    mismatch: "Οι κωδικοί δεν ταιριάζουν.",
+    invalidCode: "Ο κωδικός δεν είναι σωστός ή έχει λήξει.",
+    weakPassword: "Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.",
+    genericError: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
     backHome: "← Επιστροφή στην αρχική",
     backLogin: "Επιστροφή στη σύνδεση",
     quote: "«Υγρό χρυσάφι από την καρδιά της Μεσογείου.»",
-    successHeading: "Έλεγξε τα email σου",
-    successSub: "Αν υπάρχει λογαριασμός με αυτή τη διεύθυνση, θα λάβεις σύντομα ένα email με οδηγίες επαναφοράς.",
+    successHeading: "Ο κωδικός άλλαξε",
+    successSub: "Μπορείς πλέον να συνδεθείς με τον νέο σου κωδικό.",
   },
   en: {
     eyebrow: "Password reset",
     heading: "Forgot your password?",
-    sub: "Enter the email on your account and we'll send you a reset link.",
+    sub: "Enter the email on your account and we'll send you a 6-digit reset code.",
     email: "Email",
-    submit: "Send reset link",
+    submit: "Send reset code",
+    codeHeading: "Set a new password",
+    codeSub: (email: string) => `If an account exists for ${email}, we've sent it a 6-digit code. Enter it with your new password.`,
+    code: "Code from the email",
+    password: "New password",
+    confirmPassword: "Confirm password",
+    save: "Save password",
+    mismatch: "Passwords don't match.",
+    invalidCode: "That code is wrong or has expired.",
+    weakPassword: "Your password needs at least 6 characters.",
+    genericError: "Something went wrong. Please try again.",
     backHome: "← Back to home",
     backLogin: "Back to sign in",
     quote: "\"Liquid gold from the heart of the Mediterranean.\"",
-    successHeading: "Check your inbox",
-    successSub: "If an account exists for that address, you'll receive an email with reset instructions shortly.",
+    successHeading: "Password updated",
+    successSub: "You can now sign in with your new password.",
   },
 } as const;
 
@@ -53,22 +74,53 @@ export default function ForgotPasswordForm() {
   const t = COPY[lang as "el" | "en"] ?? COPY.el;
 
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"email" | "code" | "done">("email");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const submitted = step === "done";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    const address = String(new FormData(e.currentTarget).get("email") ?? "").trim();
+
     setLoading(true);
+    try {
+      // Always move on, whether or not the account exists, so the form
+      // can't be used to discover which emails have accounts.
+      await sendPasswordReset(address);
+      setEmail(address);
+      setStep("code");
+    } catch {
+      setError(t.genericError);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
     const data = new FormData(e.currentTarget);
-    const email = String(data.get("email") ?? "");
+    const code = String(data.get("code") ?? "");
+    const password = String(data.get("password") ?? "");
+    if (password !== String(data.get("confirmPassword") ?? "")) {
+      setError(t.mismatch);
+      return;
+    }
 
-    // TODO: wire this up once the backend is ready —
-    // e.g. insforge.auth.sendPasswordReset(email).
-    void email;
-    await new Promise((resolve) => setTimeout(resolve, 900));
-
-    setLoading(false);
-    setSubmitted(true);
+    setLoading(true);
+    try {
+      const result = await resetPasswordWithCode(email, code, password);
+      if (result.ok) setStep("done");
+      else if (result.code === "weak_password") setError(t.weakPassword);
+      else if (result.code === "invalid_code") setError(t.invalidCode);
+      else setError(t.genericError);
+    } catch {
+      setError(t.genericError);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,7 +173,7 @@ export default function ForgotPasswordForm() {
           {submitted ? (
             <motion.div variants={fadeUp} className="mt-10">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/12 ring-1 ring-secondary/25">
-                <MailCheck className="h-5 w-5 text-secondary" strokeWidth={1.8} />
+                <CheckCircle2 className="h-5 w-5 text-secondary" strokeWidth={1.8} />
               </span>
               <h1 className="mt-6 font-heading text-2xl font-bold leading-tight text-bark dark:text-cream">
                 {t.successHeading}
@@ -150,15 +202,45 @@ export default function ForgotPasswordForm() {
                 variants={fadeUp}
                 className="font-heading text-3xl font-bold leading-tight text-bark dark:text-cream"
               >
-                {t.heading}
+                {step === "code" ? t.codeHeading : t.heading}
               </motion.h1>
               <motion.p
                 variants={fadeUp}
                 className="mt-3 font-body text-sm leading-relaxed text-bark/60 dark:text-cream/55"
               >
-                {t.sub}
+                {step === "code" ? t.codeSub(email) : t.sub}
               </motion.p>
 
+              {error && (
+                <p
+                  role="alert"
+                  className="mt-6 rounded-lg bg-red-500/10 px-3 py-2.5 font-body text-sm text-red-700 dark:text-red-300"
+                >
+                  {error}
+                </p>
+              )}
+
+              {step === "code" ? (
+                <form onSubmit={handleReset} className="mt-9 flex flex-col gap-5">
+                  <FloatingField id="forgot-code" name="code" label={t.code} autoComplete="one-time-code" />
+                  <FloatingField id="forgot-password" name="password" type="password" label={t.password} autoComplete="new-password" />
+                  <FloatingField id="forgot-confirm" name="confirmPassword" type="password" label={t.confirmPassword} autoComplete="new-password" />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="mt-2 flex items-center justify-center gap-2 rounded-full bg-secondary py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white active:scale-[0.98] disabled:opacity-70"
+                  >
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        {t.save}
+                        <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
               <motion.form
                 variants={fadeUp}
                 onSubmit={handleSubmit}
@@ -187,6 +269,7 @@ export default function ForgotPasswordForm() {
                   )}
                 </button>
               </motion.form>
+              )}
 
               <motion.p variants={fadeUp} className="mt-8 text-center">
                 <Link

@@ -1,11 +1,13 @@
+import type { Metadata } from "next";
 import ForgotPasswordForm from "@/components/ForgotPasswordForm";
-import Footer from "@/components/Footer";
+import { noindexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = noindexMetadata("Επαναφορά Κωδικού");
 
 export default function ForgotPasswordPage() {
   return (
-    <>
+    <main>
       <ForgotPasswordForm />
-      <Footer />
-    </>
+    </main>
   );
 }

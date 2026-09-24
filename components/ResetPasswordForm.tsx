@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { resetPasswordWithToken } from "@/app/actions/auth";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -82,16 +83,20 @@ export default function ResetPasswordForm() {
       return;
     }
 
+    if (!token) return;
     setLoading(true);
 
-    // TODO: wire this up once the backend is ready —
-    // e.g. insforge.auth.resetPassword(token, password).
-    void token;
-    void password;
-    await new Promise((resolve) => setTimeout(resolve, 900));
-
-    setLoading(false);
-    setSuccess(true);
+    // Link-based reset: the emailed link lands here with `?token=`. (The
+    // backend currently sends 6-digit codes, handled on /forgot-password.)
+    try {
+      const result = await resetPasswordWithToken(token, password);
+      if (result.ok) setSuccess(true);
+      else setError(result.code === "invalid_code" ? t.invalidLink : result.message);
+    } catch {
+      setError(t.invalidLink);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

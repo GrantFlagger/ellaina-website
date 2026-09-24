@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Loader2, ArrowRight, ChevronDown, Check } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
+import { resendVerification, signIn, signUp, verifyEmail } from "@/app/actions/auth";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -55,6 +56,25 @@ const COPY = {
     password: "* Κωδικός",
     confirmPassword: "* Επιβεβαίωση κωδικού",
     backHome: "← Επιστροφή στην αρχική",
+    verify: {
+      eyebrow: "Επιβεβαίωση email",
+      heading: "Έλεγξε τα email σου",
+      sub: (email: string) => `Στείλαμε έναν 6ψήφιο κωδικό στο ${email}. Γράψε τον παρακάτω για να ενεργοποιήσεις τον λογαριασμό σου.`,
+      code: "* Κωδικός επιβεβαίωσης",
+      submit: "Επιβεβαίωση",
+      resend: "Αποστολή νέου κωδικού",
+      resent: "Σου στείλαμε νέο κωδικό.",
+    },
+    errors: {
+      invalid_credentials: "Λάθος email ή κωδικός.",
+      email_not_verified: "Πρέπει πρώτα να επιβεβαιώσεις το email σου.",
+      email_taken: "Υπάρχει ήδη λογαριασμός με αυτό το email.",
+      invalid_code: "Ο κωδικός δεν είναι σωστός ή έχει λήξει.",
+      weak_password: "Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.",
+      mismatch: "Οι κωδικοί δεν ταιριάζουν.",
+      not_signed_in: "Η σύνδεση έληξε. Συνδέσου ξανά.",
+      unknown: "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+    },
     quote: "«Υγρό χρυσάφι από την καρδιά της Μεσογείου.»",
   },
   en: {
@@ -86,46 +106,134 @@ const COPY = {
     password: "* Password",
     confirmPassword: "* Confirm password",
     backHome: "← Back to home",
+    verify: {
+      eyebrow: "Confirm your email",
+      heading: "Check your inbox",
+      sub: (email: string) => `We sent a 6-digit code to ${email}. Enter it below to activate your account.`,
+      code: "* Verification code",
+      submit: "Verify",
+      resend: "Send a new code",
+      resent: "We've sent you a new code.",
+    },
+    errors: {
+      invalid_credentials: "Wrong email or password.",
+      email_not_verified: "Please confirm your email first.",
+      email_taken: "An account with this email already exists.",
+      invalid_code: "That code is wrong or has expired.",
+      weak_password: "Your password needs at least 6 characters.",
+      mismatch: "Passwords don't match.",
+      not_signed_in: "Your session expired. Please sign in again.",
+      unknown: "Something went wrong. Please try again.",
+    },
     quote: "\"Liquid gold from the heart of the Mediterranean.\"",
   },
 } as const;
 
 export default function AuthForm({ mode }: { mode: Mode }) {
   const { lang } = useLanguage();
-  const { login } = useAuth();
+  const { login, updateUser } = useAuth();
   const router = useRouter();
   const t = COPY[lang as "el" | "en"] ?? COPY.el;
   const m = t[mode];
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  // Set once the account needs its 6-digit email code.
+  const [pending, setPending] = useState<{ email: string; gender: string } | null>(null);
+
+  const finish = async (user: AuthUser, gender?: string) => {
+    login(user);
+    if (gender) await updateUser({ gender });
+    router.push("/profile");
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setError(null);
+    setInfo(null);
 
     const data = new FormData(e.currentTarget);
-    const email = String(data.get("email") ?? "");
+    const email = String(data.get("email") ?? "").trim();
+    const password = String(data.get("password") ?? "");
     const firstName = String(data.get("firstName") ?? "").trim();
     const lastName = String(data.get("lastName") ?? "").trim();
     const gender = String(data.get("gender") ?? "");
 
-    // TODO: wire this up to real authentication once the backend is ready —
-    // e.g. insforge.auth.signIn(...) / insforge.auth.signUp(...).
-    // `gender` is captured here and should be persisted alongside the rest
-    // of the profile once that call is in place.
-    void gender;
-    await new Promise((resolve) => setTimeout(resolve, 900));
+    if (mode === "register" && password !== String(data.get("confirmPassword") ?? "")) {
+      setError(t.errors.mismatch);
+      return;
+    }
 
-    const displayName =
-      mode === "register"
-        ? [firstName, lastName].filter(Boolean).join(" ") || email.split("@")[0]
-        : email.split("@")[0];
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        const result = await signIn(email, password);
+        if (result.ok) return await finish(result.user);
+        if (result.code === "email_not_verified") {
+          await resendVerification(email);
+          setPending({ email, gender: "" });
+          return;
+        }
+        setError(t.errors[result.code]);
+        return;
+      }
 
-    login({ name: displayName, email });
-    setLoading(false);
-    router.push("/");
+      const result = await signUp({
+        email,
+        password,
+        name: [firstName, lastName].filter(Boolean).join(" "),
+      });
+      if (!result.ok) {
+        setError(t.errors[result.code]);
+        return;
+      }
+      if (result.needsVerification || !result.user) {
+        setPending({ email, gender });
+        return;
+      }
+      await finish(result.user, gender);
+    } catch {
+      setError(t.errors.unknown);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleVerify = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!pending) return;
+    setError(null);
+    setInfo(null);
+    const code = String(new FormData(e.currentTarget).get("code") ?? "");
+
+    setLoading(true);
+    try {
+      const result = await verifyEmail(pending.email, code);
+      if (!result.ok) {
+        setError(t.errors[result.code]);
+        return;
+      }
+      await finish(result.user, pending.gender || undefined);
+    } catch {
+      setError(t.errors.unknown);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!pending) return;
+    setError(null);
+    const result = await resendVerification(pending.email);
+    if (result.ok) setInfo(t.verify.resent);
+    else setError(t.errors[result.code]);
+  };
+
+  const eyebrow = pending ? t.verify.eyebrow : m.eyebrow;
+  const heading = pending ? t.verify.heading : m.heading;
+  const sub = pending ? t.verify.sub(pending.email) : m.sub;
 
   return (
     <div className="grid min-h-[calc(100vh-5rem)] grid-cols-1 lg:grid-cols-2">
@@ -173,21 +281,68 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             variants={fadeUp}
             className="mb-3 mt-8 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary"
           >
-            {m.eyebrow}
+            {eyebrow}
           </motion.p>
           <motion.h1
             variants={fadeUp}
             className="font-heading text-3xl font-bold leading-tight text-bark dark:text-cream"
           >
-            {m.heading}
+            {heading}
           </motion.h1>
           <motion.p
             variants={fadeUp}
             className="mt-3 font-body text-sm leading-relaxed text-bark/60 dark:text-cream/55"
           >
-            {m.sub}
+            {sub}
           </motion.p>
 
+          {(error || info) && (
+            <p
+              role={error ? "alert" : "status"}
+              className={`mt-6 rounded-lg px-3 py-2.5 font-body text-sm ${
+                error
+                  ? "bg-red-500/10 text-red-700 dark:text-red-300"
+                  : "bg-secondary/12 text-bark/80 dark:text-cream/75"
+              }`}
+            >
+              {error ?? info}
+            </p>
+          )}
+
+          {pending ? (
+            <form onSubmit={handleVerify} className="mt-9 flex flex-col gap-5">
+              <FloatingField
+                id="auth-code"
+                name="code"
+                label={t.verify.code}
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 flex items-center justify-center gap-2 rounded-full bg-secondary py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white active:scale-[0.98] disabled:opacity-70"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    {t.verify.submit}
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleResend}
+                className="font-body text-xs font-medium text-bark/50 transition-colors hover:text-secondary dark:text-cream/45"
+              >
+                {t.verify.resend}
+              </button>
+            </form>
+          ) : (
           <motion.form
             variants={fadeUp}
             onSubmit={handleSubmit}
@@ -274,6 +429,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               )}
             </button>
           </motion.form>
+          )}
 
           <motion.p
             variants={fadeUp}
@@ -302,6 +458,9 @@ function FloatingField({
   type = "text",
   autoComplete,
   trailing,
+  inputMode,
+  pattern,
+  maxLength,
 }: {
   id: string;
   name?: string;
@@ -309,6 +468,9 @@ function FloatingField({
   type?: string;
   autoComplete?: string;
   trailing?: React.ReactNode;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  pattern?: string;
+  maxLength?: number;
 }) {
   return (
     <div className="relative">
@@ -318,6 +480,9 @@ function FloatingField({
         type={type}
         required
         autoComplete={autoComplete}
+        inputMode={inputMode}
+        pattern={pattern}
+        maxLength={maxLength}
         placeholder={label}
         className="peer w-full rounded-xl border border-bark/15 bg-white px-4 pb-2.5 pt-6 font-body text-[0.9375rem] text-bark placeholder-transparent transition-colors duration-200 focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary/40 dark:border-cream/15 dark:bg-white/[0.04] dark:text-cream"
       />

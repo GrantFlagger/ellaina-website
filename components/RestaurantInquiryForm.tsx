@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Loader2, Send } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { insforge } from "@/lib/insforge";
 
+import Honeypot, { isBot } from "@/components/Honeypot";
 type FormState = {
   restaurantName: string;
   contactName: string;
@@ -59,6 +61,11 @@ export default function RestaurantInquiryForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBot(e.currentTarget as HTMLFormElement)) {
+      setStatus("sent");
+      setForm(EMPTY);
+      return;
+    }
     setStatus("loading");
 
     const { error } = await insforge.database.from("restaurant_inquiries").insert([
@@ -91,12 +98,13 @@ export default function RestaurantInquiryForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Honeypot />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="rest-restaurantName" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.restaurantName}
           </label>
-          <input
+          <input id="rest-restaurantName"
             type="text"
             required
             value={form.restaurantName}
@@ -105,10 +113,10 @@ export default function RestaurantInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="rest-contactName" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.contactName}
           </label>
-          <input
+          <input id="rest-contactName"
             type="text"
             required
             value={form.contactName}
@@ -117,10 +125,10 @@ export default function RestaurantInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="rest-email" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.email}
           </label>
-          <input
+          <input id="rest-email"
             type="email"
             required
             value={form.email}
@@ -129,10 +137,10 @@ export default function RestaurantInquiryForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="rest-phone" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.phone}
           </label>
-          <input
+          <input id="rest-phone"
             type="tel"
             value={form.phone}
             onChange={update("phone")}
@@ -140,10 +148,10 @@ export default function RestaurantInquiryForm() {
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+          <label htmlFor="rest-city" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
             {t.city}
           </label>
-          <input
+          <input id="rest-city"
             type="text"
             value={form.city}
             onChange={update("city")}
@@ -153,10 +161,10 @@ export default function RestaurantInquiryForm() {
       </div>
 
       <div>
-        <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+        <label htmlFor="rest-message" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
           {t.message}
         </label>
-        <textarea
+        <textarea id="rest-message"
           required
           rows={4}
           value={form.message}
@@ -165,8 +173,18 @@ export default function RestaurantInquiryForm() {
         />
       </div>
 
+      <p className="font-body text-xs leading-relaxed text-bark/60 dark:text-cream/55">
+        {lang === "el"
+          ? "Χρησιμοποιούμε αυτά τα στοιχεία μόνο για να απαντήσουμε στο αίτημά σου. Δες την "
+          : "We only use these details to respond to your request. See our "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-secondary">
+          {lang === "el" ? "Πολιτική Απορρήτου" : "Privacy Policy"}
+        </Link>
+        .
+      </p>
+
       {status === "error" && (
-        <p className="font-body text-xs font-medium text-red-500">{t.error}</p>
+        <p role="alert" className="font-body text-xs font-medium text-red-500">{t.error}</p>
       )}
 
       <button

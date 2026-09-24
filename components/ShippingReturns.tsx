@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { COMPANY } from "@/lib/company";
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 20 },
@@ -26,7 +27,7 @@ export default function ShippingReturns() {
           shippingItems: [
             {
               title: "Χρόνος Επεξεργασίας",
-              body: "Οι παραγγελίες συνήθως επεξεργάζονται και αποστέλλονται ανάλογα με το μέγεθος της παραγγελίας και όπως έχει συμφωνηθεί με τις ανάγκες του πελάτη.",
+              body: "Οι παραγγελίες λιανικής αποστέλλονται μόλις επιβεβαιωθεί η πληρωμή. Οι χρόνοι παράδοσης παρακάτω είναι ενδεικτικοί· σε κάθε περίπτωση η παράδοση γίνεται το αργότερο εντός 30 ημερών από την παραγγελία — διαφορετικά μπορείς να την ακυρώσεις με πλήρη επιστροφή χρημάτων. Για επαγγελματικές παραγγελίες, ο χρόνος αποστολής συμφωνείται ανάλογα με την ποσότητα.",
             },
             {
               title: "Χρόνοι Παράδοσης",
@@ -38,7 +39,7 @@ export default function ShippingReturns() {
             },
             {
               title: "Έξοδα Αποστολής",
-              body: "Τα έξοδα αποστολής περιλαμβάνονται στην τελική τιμή.",
+              body: "Τα έξοδα αποστολής περιλαμβάνονται στην τελική τιμή που βλέπεις πριν την πληρωμή. Για αποστολές εκτός ΕΕ, οι τελωνειακές αρχές της χώρας προορισμού ενδέχεται να επιβάλουν δασμούς ή φόρους, οι οποίοι βαρύνουν τον παραλήπτη.",
             },
             {
               title: "Συσκευασία",
@@ -50,19 +51,39 @@ export default function ShippingReturns() {
             },
           ],
 
-          returnsTitle: " Πολιτική Επιστροφών & Επιστροφής Χρημάτων",
+          returnsTitle: "Υπαναχώρηση, Επιστροφές & Επιστροφή Χρημάτων",
           returnsItems: [
             {
-              title: "Επιστροφές",
-              body: "Όλες οι πωλήσεις είναι οριστικές — δεν δεχόμαστε επιστροφές ή αντικαταστάσεις. Οι ακυρώσεις επιτρέπονται εντός 1–5 ημερών από την ημερομηνία παραγγελίας. Μετά από αυτό το διάστημα, οι παραγγελίες δεν μπορούν να ακυρωθούν. Σε κάθε περίπτωση, η προκαταβολή δεν επιστρέφεται.",
+              title: "Δικαίωμα Υπαναχώρησης (14 ημέρες)",
+              body: `Ως καταναλωτής έχεις δικαίωμα να υπαναχωρήσεις από την αγορά μέσα σε 14 ημέρες από την ημέρα που παρέλαβες τα προϊόντα, χωρίς να δώσεις αιτιολογία. Για να το ασκήσεις, στείλε μας μια σαφή δήλωση στο ${COMPANY.email} πριν λήξει η προθεσμία. Μπορείς να χρησιμοποιήσεις το υπόδειγμα παρακάτω, χωρίς να είναι υποχρεωτικό.`,
+            },
+            {
+              title: "Ακύρωση πριν την Αποστολή",
+              body: "Μπορείς να ακυρώσεις την παραγγελία σου οποιαδήποτε στιγμή πριν αποσταλεί, με πλήρη επιστροφή των χρημάτων σου.",
+            },
+            {
+              title: "Επιστροφή των Προϊόντων",
+              body: "Στείλε τα προϊόντα πίσω, αχρησιμοποίητα, στη διεύθυνση που θα σου υποδείξουμε, το αργότερο 14 ημέρες μετά τη δήλωση υπαναχώρησης. Το άμεσο κόστος της επιστροφής βαρύνει εσένα.",
+            },
+            {
+              title: "Επιστροφή Χρημάτων",
+              body: "Θα σου επιστρέψουμε όλα τα ποσά που πλήρωσες, μαζί με τα βασικά έξοδα αποστολής, εντός 14 ημερών από τη λήψη της δήλωσής σου, με τον ίδιο τρόπο πληρωμής που χρησιμοποίησες. Μπορούμε να παρακρατήσουμε την επιστροφή μέχρι να παραλάβουμε τα προϊόντα ή να μας δείξεις ότι τα έχεις αποστείλει.",
+            },
+            {
+              title: "Εξαίρεση: Ανοιγμένα Προϊόντα",
+              body: "Για λόγους προστασίας της υγείας και υγιεινής, το δικαίωμα υπαναχώρησης δεν ισχύει για σφραγισμένα προϊόντα των οποίων η σφράγιση έχει αφαιρεθεί μετά την παράδοση (π.χ. ανοιγμένα μπουκάλια ή δοχεία).",
             },
             {
               title: "Κατεστραμμένα ή Ελαττωματικά Προϊόντα",
-              body: "Αν η παραγγελία σας φτάσει κατεστραμμένη, με διαρροή, ή ελαττωματική, επικοινωνήστε μαζί μας εντός 7 ημερών με φωτογραφίες του προβλήματος.",
+              body: "Αν η παραγγελία σου φτάσει κατεστραμμένη, με διαρροή ή ελαττωματική, ενημέρωσέ μας το συντομότερο — ιδανικά εντός 7 ημερών — με φωτογραφίες του προβλήματος, και θα σου στείλουμε αντικατάσταση ή θα σου επιστρέψουμε τα χρήματα χωρίς καμία χρέωση. Αυτό δεν περιορίζει τη νόμιμη εγγύηση συμμόρφωσης δύο (2) ετών που ισχύει για όλα τα προϊόντα.",
             },
             {
-              title: "Μη Επιστρεφόμενα Προϊόντα",
-              body: "Για λόγους υγείας και ασφάλειας, ανοιγμένα μπουκάλια ή χρησιμοποιημένα προϊόντα δεν μπορούν να επιστραφούν.",
+              title: "Υπόδειγμα Δήλωσης Υπαναχώρησης",
+              body: `Προς: ${COMPANY.legalName.el}, ${COMPANY.address.el}, ${COMPANY.email} — «Με την παρούσα δηλώνω ότι υπαναχωρώ από τη σύμβαση πώλησης των ακόλουθων προϊόντων: […] · Αριθμός παραγγελίας: […] · Ημερομηνία παραγγελίας / παραλαβής: […] · Ονοματεπώνυμο: […] · Διεύθυνση: […] · Ημερομηνία: […]»`,
+            },
+            {
+              title: "Επαγγελματικές Παραγγελίες (B2B)",
+              body: "Οι παραπάνω κανόνες υπαναχώρησης αφορούν καταναλωτές. Για παραγγελίες επιχειρήσεων ισχύουν οι όροι της γραπτής συμφωνίας μας.",
             },
           ],
 
@@ -80,7 +101,7 @@ export default function ShippingReturns() {
           shippingItems: [
             {
               title: "Processing Time",
-              body: "Orders are typically processed and shipped based on the order amount and as agreed upon with the client's needs.",
+              body: "Retail orders are shipped once payment is confirmed. The delivery times below are estimates; in any case, delivery takes place no later than 30 days from your order — otherwise you may cancel it for a full refund. For business orders, shipping time is agreed according to the quantity.",
             },
             {
               title: "Delivery Times",
@@ -92,7 +113,7 @@ export default function ShippingReturns() {
             },
             {
               title: "Shipping Costs",
-              body: "Shipping costs are included in the final price.",
+              body: "Shipping costs are included in the final price shown before payment. For deliveries outside the EU, the destination country's customs authorities may charge duties or taxes, payable by the recipient.",
             },
             {
               title: "Packaging",
@@ -104,19 +125,39 @@ export default function ShippingReturns() {
             },
           ],
 
-          returnsTitle: " Return & Refund Policy",
+          returnsTitle: "Withdrawal, Returns & Refunds",
           returnsItems: [
             {
-              title: "Returns",
-              body: "Please note that all sales are final. We do not accept returns or exchanges. Cancellations are allowed within 1–5 days from the order date. After this period, orders cannot be cancelled. However, please note that in any case, the down payment is non-refundable.",
+              title: "Right of Withdrawal (14 days)",
+              body: `As a consumer you have the right to withdraw from your purchase within 14 days of the day you received the products, without giving any reason. To exercise it, send us a clear statement at ${COMPANY.email} before the deadline. You may use the model form below, but it is not mandatory.`,
+            },
+            {
+              title: "Cancelling Before Dispatch",
+              body: "You can cancel your order at any time before it has been shipped, with a full refund.",
+            },
+            {
+              title: "Returning the Products",
+              body: "Send the products back, unused, to the address we give you, no later than 14 days after your withdrawal statement. You bear the direct cost of returning them.",
+            },
+            {
+              title: "Refunds",
+              body: "We will refund all payments received from you, including standard delivery costs, within 14 days of receiving your statement, using the same payment method you used. We may withhold the refund until we have received the products back or you have shown proof of sending them.",
+            },
+            {
+              title: "Exception: Opened Products",
+              body: "For health-protection and hygiene reasons, the right of withdrawal does not apply to sealed products that have been unsealed after delivery (e.g. opened bottles or tins).",
             },
             {
               title: "Damaged or Defective Products",
-              body: "If your order arrives damaged, leaking, or defective, contact us within 7 days with photos of the issue.",
+              body: "If your order arrives damaged, leaking, or defective, let us know as soon as possible — ideally within 7 days — with photos of the issue, and we will send a replacement or refund you at no cost. This does not limit the two-year legal guarantee of conformity that applies to all products.",
             },
             {
-              title: "Non-Returnable Items",
-              body: "For health and safety reasons, opened bottles or used products cannot be returned.",
+              title: "Model Withdrawal Form",
+              body: `To: ${COMPANY.legalName.en}, ${COMPANY.address.en}, ${COMPANY.email} — "I hereby give notice that I withdraw from my contract of sale of the following goods: […] · Order number: […] · Ordered on / received on: […] · Name: […] · Address: […] · Date: […]"`,
+            },
+            {
+              title: "Business Orders (B2B)",
+              body: "The withdrawal rules above apply to consumers. Business orders are governed by the terms of our written agreement.",
             },
           ],
 
@@ -213,10 +254,10 @@ export default function ShippingReturns() {
         <h2 className="font-heading text-lg font-bold text-bark dark:text-cream">{copy.contactHeading}</h2>
         <p className="mt-2 font-body text-sm leading-relaxed text-bark/65 dark:text-cream/55">{copy.contactBody}</p>
         <a
-          href="mailto:ellaina.oliveoil@gmail.com"
+          href={`mailto:${COMPANY.email}`}
           className="mt-4 inline-block font-body text-sm font-medium text-secondary transition-colors hover:text-secondary-600"
         >
-          ellaina.oliveoil@gmail.com
+          {COMPANY.email}
         </a>
       </motion.div>
     </div>

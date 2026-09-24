@@ -35,7 +35,10 @@ const cardVariant = {
   },
 };
 
-export default function Cookbook() {
+export default function Cookbook({ headingLevel = "h1" }: { headingLevel?: "h1" | "h2" } = {}) {
+  // Rendered on more than one page: the page decides whether this is its H1.
+  const Heading = headingLevel === "h1" ? motion.h1 : motion.h2;
+
   const { lang } = useLanguage();
 
   const copy =
@@ -67,12 +70,12 @@ export default function Cookbook() {
           >
             {copy.label}
           </motion.p>
-          <motion.h1
+          <Heading
             variants={fadeUp}
             className="font-heading text-balance text-3xl font-bold leading-tight tracking-tight text-bark dark:text-cream sm:text-4xl lg:text-[2.75rem]"
           >
             {copy.heading}
-          </motion.h1>
+          </Heading>
           <motion.div variants={fadeUp} className="mt-6 h-px w-12 bg-secondary" />
           <motion.p
             variants={fadeUp}

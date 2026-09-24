@@ -5,7 +5,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { User, ShoppingBag, MapPinned, ArrowRight, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { insforge } from "@/lib/insforge";
 
+import Honeypot, { isBot } from "@/components/Honeypot";
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   visible: {
@@ -42,6 +44,10 @@ const COPY = {
     messagePh: "Γράψε το μήνυμά σου",
     send: "Αποστολή μηνύματος",
     sent: "Στάλθηκε ✓",
+    sending: "Αποστολή…",
+    sendError: "Κάτι πήγε στραβά και το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά ή γράψε μας στο info@ellainaoliveoil.com.",
+    privacyBefore: "Χρησιμοποιούμε τα στοιχεία σου μόνο για να απαντήσουμε στο μήνυμά σου. Δες την ",
+    privacyLink: "Πολιτική Απορρήτου",
     card1Title: "Μάθε περισσότερα για την Ellaina",
     card1Cta: "Οι αξίες μας",
     card2Title: "Δες τη νέα μας συγκομιδή",
@@ -70,6 +76,10 @@ const COPY = {
     messagePh: "Enter your message",
     send: "Send message",
     sent: "Sent ✓",
+    sending: "Sending…",
+    sendError: "Something went wrong and your message was not sent. Please try again or email us at info@ellainaoliveoil.com.",
+    privacyBefore: "We only use your details to reply to your message. See our ",
+    privacyLink: "Privacy Policy",
     card1Title: "Learn more about Ellaina",
     card1Cta: "Our values",
     card2Title: "Check out our new harvest",
@@ -79,7 +89,7 @@ const COPY = {
   },
 } as const;
 
-type Copy = (typeof COPY)["el"];
+type Copy = (typeof COPY)[keyof typeof COPY];
 
 export default function Contact() {
   const { lang } = useLanguage();
@@ -235,16 +245,48 @@ function SidebarCard({
 /* ------------------------------------------------------------------ */
 
 function ContactForm({ t }: { t: Copy }) {
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isBot(e.currentTarget as HTMLFormElement)) {
+      setStatus("sent");
+      return;
+    }
+    if (status === "loading") return;
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const field = (key: string) => String(data.get(key) ?? "").trim();
+
+    setStatus("loading");
+
+    // Phone is optional and has no column of its own, so it rides along
+    // with the message body when provided.
+    const phone = field("c-phone");
+    const { error } = await insforge.database.from("contact_messages").insert([
+      {
+        name: `${field("c-first")} ${field("c-last")}`.trim(),
+        email: field("c-email").toLowerCase(),
+        subject: field("c-reason"),
+        message: phone ? `${field("c-message")}\n\nPhone: ${phone}` : field("c-message"),
+      },
+    ]);
+
+    if (error) {
+      setStatus("error");
+      return;
+    }
+
+    setStatus("sent");
+    form.reset();
+  };
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSubmitted(true);
-      }}
+      onSubmit={handleSubmit}
       className="mt-10 flex max-w-xl flex-col gap-7"
     >
+      <Honeypot />
       <div className="grid grid-cols-1 gap-7 sm:grid-cols-2">
         <UnderlineField id="c-first" label={t.firstName} placeholder={t.firstNamePh} required />
         <UnderlineField id="c-last" label={t.lastName} placeholder={t.lastNamePh} required />
@@ -272,12 +314,26 @@ function ContactForm({ t }: { t: Copy }) {
         required
       />
 
+      <p className="font-body text-xs leading-relaxed text-bark/60 dark:text-cream/55">
+        {t.privacyBefore}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-secondary">
+          {t.privacyLink}
+        </Link>
+        .
+      </p>
+
       <button
         type="submit"
+        disabled={status === "loading"}
         className="mt-3 w-fit rounded-full bg-bark px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-cream transition-colors hover:bg-secondary hover:text-bark dark:bg-secondary dark:text-bark dark:hover:bg-secondary-600"
       >
-        {submitted ? t.sent : t.send}
+        {status === "sent" ? t.sent : status === "loading" ? t.sending : t.send}
       </button>
+      {status === "error" && (
+        <p role="alert" className="font-body text-xs font-medium text-red-400">
+          {t.sendError}
+        </p>
+      )}
     </form>
   );
 }
@@ -317,13 +373,14 @@ function UnderlineField({
       {as === "textarea" ? (
         <textarea
           id={id}
+          name={id}
           rows={rows}
           placeholder={placeholder}
           required={required}
           className={`${shared} resize-none`}
         />
       ) : (
-        <input id={id} type={type} placeholder={placeholder} required={required} className={shared} />
+        <input id={id} name={id} type={type} placeholder={placeholder} required={required} className={shared} />
       )}
     </div>
   );
@@ -350,6 +407,7 @@ function UnderlineSelect({
       <div className="relative">
         <select
           id={id}
+          name={id}
           defaultValue=""
           required={required}
           className="peer w-full appearance-none border-0 border-b border-bark/15 dark:border-cream/15 bg-transparent px-0 py-2 pr-7 font-body text-[0.9375rem] font-normal text-bark/40 focus:border-secondary focus:outline-none invalid:text-bark/40 valid:text-bark valid:dark:text-cream dark:text-cream dark:invalid:text-cream/35"

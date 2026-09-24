@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import AuthForm from "@/components/AuthForm";
+import { noindexMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Εγγραφή",
-  description: "Δημιούργησε λογαριασμό στην Ellaina Olive Oil.",
-};
+export const metadata: Metadata = noindexMetadata("Εγγραφή");
 
 export default function RegisterPage() {
   return (

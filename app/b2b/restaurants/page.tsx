@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import B2BRestaurants from "@/components/B2BRestaurants";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ellaina για Εστιατόρια",
-  description: "Private-label extra virgin olive oil για το εστιατόριό σας, με το δικό σας όνομα και λογότυπο.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Ελαιόλαδο για Εστιατόρια",
+  description: "Private-label εξαιρετικό παρθένο ελαιόλαδο για το εστιατόριό σας, με το δικό σας όνομα και λογότυπο.",
+  path: "/b2b/restaurants",
+});
 
 export default function B2BRestaurantsPage() {
   return (

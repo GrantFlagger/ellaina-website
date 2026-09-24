@@ -43,7 +43,10 @@ const POINTS = [
   },
 ] as const;
 
-export default function Sustainability() {
+export default function Sustainability({ headingLevel = "h2" }: { headingLevel?: "h1" | "h2" } = {}) {
+  // Rendered on more than one page: the page decides whether this is its H1.
+  const Heading = headingLevel === "h1" ? motion.h1 : motion.h2;
+
   const { lang } = useLanguage();
   const t = translations[lang].sustainability;
 
@@ -74,12 +77,12 @@ export default function Sustainability() {
             {t.label}
           </motion.p>
 
-          <motion.h2
+          <Heading
             variants={fadeUp}
             className="font-heading text-balance text-3xl font-bold leading-[1.18] tracking-tight text-white sm:text-4xl lg:text-[2.6rem]"
           >
             {t.heading}
-          </motion.h2>
+          </Heading>
 
           <motion.div variants={fadeUp} className="my-7 h-px w-12 bg-secondary/70" />
 

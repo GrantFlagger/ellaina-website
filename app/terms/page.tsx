@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import TermsOfUse from "@/components/TermsOfUse";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms of Use",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Όροι Χρήσης",
+  description: "Οι όροι χρήσης του ellainaoliveoil.com και οι όροι αγορών από το ηλεκτρονικό μας κατάστημα.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

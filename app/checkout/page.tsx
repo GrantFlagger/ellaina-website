@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Checkout from "@/components/Checkout";
+import { noindexMetadata } from "@/lib/seo";
 
 
-export const metadata: Metadata = {
-  title: "Checkout",
-};
+export const metadata: Metadata = noindexMetadata("Checkout");
 
 export default function CheckoutPage() {
   return (

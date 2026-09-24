@@ -7,6 +7,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { insforge } from "@/lib/insforge";
 
+import Honeypot, { isBot } from "@/components/Honeypot";
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
@@ -26,7 +27,7 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 
 const SOCIAL_LINKS = [
-  { label: "Instagram", href: "https://www.instagram.com/ellaina_olive.oil?stkn=MW5senk5bDBwdHRtdA==",  Icon: InstagramIcon },
+  { label: "Instagram", href: "https://www.instagram.com/ellaina_olive.oil/",  Icon: InstagramIcon },
   { label: "TikTok",    href: "https://tiktok.com",    Icon: TikTokIcon    },
 ] as const;
 
@@ -46,6 +47,11 @@ export default function Footer() {
   ];
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBot(e.currentTarget as HTMLFormElement)) {
+      setStatus("subscribed");
+      setEmail("");
+      return;
+    }
     if (!email.trim() || status === "loading") return;
 
     setStatus("loading");
@@ -138,8 +144,9 @@ export default function Footer() {
               </p>
             ) : (
               <form onSubmit={handleSubscribe} className="flex flex-col gap-2.5 sm:flex-row lg:flex-col xl:flex-row">
+                <Honeypot />
                 <label htmlFor="footer-email" className="sr-only">
-                  Email address
+                  {lang === "el" ? "Διεύθυνση email" : "Email address"}
                 </label>
                 <input
                   id="footer-email"
@@ -159,6 +166,16 @@ export default function Footer() {
                   {status === "loading" ? t.subscribing : t.subscribe}
                 </button>
               </form>
+            )}
+            {status !== "subscribed" && status !== "duplicate" && (
+              <p className="font-body text-xs leading-relaxed text-cream/55">
+                {lang === "el"
+                  ? "Εγγράφεσαι για να λαμβάνεις email από την Ellaina. Μπορείς να διαγραφείς όποτε θέλεις. "
+                  : "You're signing up to receive emails from Ellaina. You can unsubscribe at any time. "}
+                <Link href="/privacy" className="underline underline-offset-2 hover:text-cream">
+                  {t.privacy}
+                </Link>
+              </p>
             )}
             {status === "error" && (
               <p className="font-body text-xs font-medium text-red-400">

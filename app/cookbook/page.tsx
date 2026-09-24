@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import PageTransition from "@/components/PageTransition";
 import Cookbook from "@/components/Cookbook";
-import Footer from "@/components/Footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Συνταγές",
+export const metadata: Metadata = pageMetadata({
+  title: "Συνταγές με Ελαιόλαδο",
   description:
-    "Πέντε τρόποι να μαγειρέψεις και να σερβίρεις με το Ellaina Extra Virgin Olive Oil — από τη χωριάτικη μέχρι τον ντάκο Κρητικό.",
-};
+    "Συνταγές με Ellaina Extra Virgin Olive Oil — από λαδόπιτα Πρέβεζας και μπριάμ μέχρι χωριάτικη και ντάκο.",
+  path: "/cookbook",
+});
 
 export default function CookbookPage() {
   return (
@@ -15,7 +16,6 @@ export default function CookbookPage() {
       <main className="bg-cream dark:bg-night pt-20">
         <Cookbook />
       </main>
-      <Footer />
     </PageTransition>
   );
 }

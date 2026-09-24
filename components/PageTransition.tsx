@@ -1,29 +1,16 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 /*
  * Lightweight page-level fade-in.
  *
- * Wraps the page content in a single motion.div that transitions from
- * opacity 0 → 1 on mount. The 350ms duration completes well before the
- * Hero's internal stagger animations begin (which are delayed by 350ms),
- * so the two effects compose naturally rather than competing.
- *
- * opacity is the only animated property — no layout shift, no reflow.
+ * Pure CSS (see .page-fade-in in globals.css) rather than framer-motion:
+ * a motion.div server-renders `opacity: 0` and stays invisible until the JS
+ * bundle hydrates, which pushed LCP back on every page. The CSS animation
+ * starts on first paint instead. Same 350ms opacity-only fade — no layout
+ * shift, no reflow.
  */
 export default function PageTransition({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="page-fade-in">{children}</div>;
 }

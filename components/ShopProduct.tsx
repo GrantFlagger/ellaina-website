@@ -14,7 +14,7 @@ const TRUST_ICONS = [Droplets, Leaf, MapPin, Award] as const;
 
 const CHEMICAL = [
   { index: "Acidity",        description: "Purity of Olive Oil",           value: "0.24",   limit: "≤ 0.80",  unit: "%"         },
-  { index: "K268",           description: "Low value = high quality",       value: "0.140",  limit: "≤ 0.220", unit: ""          },
+  { index: "K270",           description: "Low value = high quality",       value: "0.140",  limit: "≤ 0.220", unit: ""          },
   { index: "K232",           description: "Low value = fresh",              value: "1.598",  limit: "≤ 2.500", unit: ""          },
   { index: "ΔK",             description: "Level of processing",            value: "-0.004", limit: "≤ 0.01",  unit: ""          },
   { index: "Peroxide Value", description: "Level of oxidation (rancidity)", value: "5.8",    limit: "≤ 20",    unit: "mEq O₂/kg" },

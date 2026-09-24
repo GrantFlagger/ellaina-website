@@ -100,7 +100,7 @@ export default function Hero() {
             href="/about"
             className="w-full rounded-full border border-bark/30 px-8 py-3.5 text-sm font-medium tracking-wide text-bark transition-colors duration-200 hover:border-bark/60 hover:bg-bark/5 active:scale-[0.97] sm:w-auto"
           >
-            {t.ourStory}
+            {t.ourValues}
           </a>
         </motion.div>
       </motion.div>

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { startCheckout } from "@/lib/checkout";
@@ -46,7 +47,19 @@ export default function Checkout() {
   const t = translations[lang].checkoutPage;
   const cartT = translations[lang].cart;
 
+  const { user } = useAuth();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+
+  // Prefill contact details for signed-in customers.
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      fullName: f.fullName || user.name,
+      email: f.email || user.email,
+      phone: f.phone || user.phone || "",
+    }));
+  }, [user]);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -58,10 +71,8 @@ export default function Checkout() {
     setNotice(null);
     setLoading(true);
 
-    // Shipping/contact details are collected above but not sent anywhere
-    // yet — there's no orders backend wired up. Once InsForge orders are
-    // in place, this is where `form` gets saved alongside the session.
-    const result = await startCheckout(items);
+    // The server saves `form` with the order, then hands back the Stripe URL.
+    const result = await startCheckout(items, form, lang);
     setLoading(false);
 
     if (result.ok) {
@@ -71,8 +82,16 @@ export default function Checkout() {
     if (result.reason === "unconfigured") {
       setNotice(
         l === "el"
-          ? "Η ηλεκτρονική πληρωμή ρυθμίζεται ακόμη. Κρατήσαμε τα στοιχεία σου — επικοινώνησε μαζί μας για να ολοκληρώσουμε την παραγγελία σου."
-          : "Online payment is still being set up. We've noted your details — please contact us to complete your order."
+          ? "Η ηλεκτρονική πληρωμή ρυθμίζεται ακόμη, οπότε η παραγγελία δεν καταχωρήθηκε και τα στοιχεία σου δεν αποθηκεύτηκαν. Επικοινώνησε μαζί μας στο info@ellainaoliveoil.com ή στο +30 698 765 7362 για να ολοκληρώσουμε την παραγγελία σου."
+          : "Online payment is still being set up, so your order was not placed and your details were not saved. Please contact us at info@ellainaoliveoil.com or +30 698 765 7362 to complete your order."
+      );
+      return;
+    }
+    if (result.reason === "out_of_stock") {
+      setNotice(
+        l === "el"
+          ? "Δεν υπάρχει αρκετό απόθεμα για κάποιο προϊόν στο καλάθι σου. Μείωσε την ποσότητα ή επικοινώνησε μαζί μας."
+          : "We don't have enough stock for an item in your cart. Please lower the quantity or contact us."
       );
       return;
     }
@@ -129,9 +148,9 @@ export default function Checkout() {
               {t.contactLabel}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label={t.fullName} value={form.fullName} onChange={update("fullName")} required className="sm:col-span-2" />
-              <Field label={t.email} type="email" value={form.email} onChange={update("email")} required />
-              <Field label={t.phone} type="tel" value={form.phone} onChange={update("phone")} required />
+              <Field label={t.fullName} value={form.fullName} onChange={update("fullName")} autoComplete="name" required className="sm:col-span-2" />
+              <Field label={t.email} type="email" value={form.email} onChange={update("email")} autoComplete="email" required />
+              <Field label={t.phone} type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" required />
             </div>
           </div>
 
@@ -140,18 +159,19 @@ export default function Checkout() {
               {t.shippingLabel}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label={t.address} value={form.address} onChange={update("address")} required className="sm:col-span-2" />
-              <Field label={t.city} value={form.city} onChange={update("city")} required />
-              <Field label={t.postalCode} value={form.postalCode} onChange={update("postalCode")} required />
-              <Field label={t.country} value={form.country} onChange={update("country")} required className="sm:col-span-2" />
+              <Field label={t.address} value={form.address} onChange={update("address")} autoComplete="street-address" required className="sm:col-span-2" />
+              <Field label={t.city} value={form.city} onChange={update("city")} autoComplete="address-level2" required />
+              <Field label={t.postalCode} value={form.postalCode} onChange={update("postalCode")} autoComplete="postal-code" required />
+              <Field label={t.country} value={form.country} onChange={update("country")} autoComplete="country-name" required className="sm:col-span-2" />
             </div>
           </div>
 
           <div>
-            <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+            <label htmlFor="checkout-notes" className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
               {t.notes}
             </label>
             <textarea
+              id="checkout-notes"
               value={form.notes}
               onChange={update("notes")}
               rows={3}
@@ -219,6 +239,19 @@ export default function Checkout() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {t.completeOrder}
             </button>
+            <p className="mt-3 font-body text-xs leading-relaxed text-bark/60 dark:text-cream/55">
+              {l === "el" ? "Συνεχίζοντας, αποδέχεσαι τους " : "By continuing, you accept our "}
+              <Link href="/terms" className="underline decoration-secondary/50 underline-offset-2 hover:text-secondary">
+                {l === "el" ? "Όρους Πώλησης" : "Terms of Sale"}
+              </Link>
+              {l === "el" ? " και έχεις διαβάσει την " : " and have read our "}
+              <Link href="/privacy" className="underline decoration-secondary/50 underline-offset-2 hover:text-secondary">
+                {l === "el" ? "Πολιτική Απορρήτου" : "Privacy Policy"}
+              </Link>
+              {l === "el"
+                ? ". Έχεις δικαίωμα υπαναχώρησης 14 ημερών από την παραλαβή."
+                : ". You have a 14-day right of withdrawal from delivery."}
+            </p>
           </div>
         </div>
       </form>
@@ -232,6 +265,7 @@ function Field({
   onChange,
   type = "text",
   required,
+  autoComplete,
   className,
 }: {
   label: string;
@@ -239,14 +273,18 @@ function Field({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   required?: boolean;
+  autoComplete?: string;
   className?: string;
 }) {
+  const id = useId();
   return (
     <div className={className}>
-      <label className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
+      <label htmlFor={id} className="mb-2 block font-body text-xs uppercase tracking-wide text-bark/50 dark:text-cream/40">
         {label}
       </label>
       <input
+        id={id}
+        autoComplete={autoComplete}
         type={type}
         value={value}
         onChange={onChange}

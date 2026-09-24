@@ -57,20 +57,20 @@ export default function Benefits() {
             health: {
               eyebrow: "Υγεία",
               watermark: "ΥΓΕΙΑ",
-              title: "Καλό για την καρδιά σου",
-              body: "Πλούσιο σε μονοακόρεστα λιπαρά, στηρίζει την καρδιαγγειακή υγεία. Γεμάτο πολυφαινόλες και βιταμίνη Ε — φυσική ασπίδα ενάντια στο οξειδωτικό στρες.",
+              title: "Στην καρδιά της μεσογειακής διατροφής",
+              body: "Το ελαιόλαδο έχει υψηλή περιεκτικότητα σε μονοακόρεστα λιπαρά. Η αντικατάσταση των κορεσμένων λιπαρών με ακόρεστα στη διατροφή συμβάλλει στη διατήρηση φυσιολογικών επιπέδων χοληστερόλης στο αίμα. Η βιταμίνη Ε συμβάλλει στην προστασία των κυττάρων από το οξειδωτικό στρες. Στο πλαίσιο μιας ποικίλης, ισορροπημένης διατροφής και ενός υγιεινού τρόπου ζωής.",
             },
             beauty: {
               eyebrow: "Ομορφιά",
               watermark: "ΟΜΟΡΦΙΑ",
-              title: "Το μυστικό ομορφιάς της Μεσογείου",
-              body: "Στο δέρμα, ενυδατώνει και προστατεύει από τα σημάδια του χρόνου. Στα μαλλιά, λειτουργεί ως παραδοσιακή θρεπτική μάσκα.",
+              title: "Μια μεσογειακή παράδοση",
+              body: "Για γενιές, το ελαιόλαδο έχει θέση και στην παραδοσιακή περιποίηση του δέρματος και των μαλλιών στη Μεσόγειο. Το Ellaina είναι τρόφιμο — όχι καλλυντικό προϊόν.",
             },
             ritual: {
               eyebrow: "Τελετουργία",
               watermark: "ΞΗΜΕΡΩΜΑ",
-              title: "Το πρωινό σου ελιξίριο",
-              body: "Μια κουταλιά Ellaina με χυμό λεμονιού, με άδειο στομάχι — ένα φυσικό «beauty shot» πριν τον καφέ σου.",
+              title: "Το πρωινό σου τελετουργικό",
+              body: "Μια κουταλιά Ellaina με λίγο χυμό λεμονιού — ένα απλό μεσογειακό τελετουργικό πριν τον καφέ σου.",
             },
           },
         }
@@ -82,20 +82,20 @@ export default function Benefits() {
             health: {
               eyebrow: "Health",
               watermark: "HEALTH",
-              title: "Good for your heart",
-              body: "Rich in heart-friendly monounsaturated fats, supporting cardiovascular health. Packed with polyphenols and vitamin E — a natural shield against oxidative stress.",
+              title: "At the heart of the Mediterranean diet",
+              body: "Olive oil is high in monounsaturated fat. Replacing saturated fats with unsaturated fats in the diet contributes to the maintenance of normal blood cholesterol levels. Vitamin E contributes to the protection of cells from oxidative stress. As part of a varied, balanced diet and a healthy lifestyle.",
             },
             beauty: {
               eyebrow: "Beauty",
               watermark: "BEAUTY",
-              title: "The Mediterranean's beauty secret",
-              body: "On skin, it hydrates and protects against everyday signs of aging. On hair, it works as a traditional nourishing mask.",
+              title: "A Mediterranean tradition",
+              body: "For generations, olive oil has also had a place in traditional Mediterranean skin and hair care. Ellaina is a food — not a cosmetic product.",
             },
             ritual: {
               eyebrow: "Ritual",
               watermark: "DAWN",
-              title: "Your morning elixir",
-              body: "A spoonful of Ellaina with lemon juice, on an empty stomach — a natural \"beauty shot\" before your coffee.",
+              title: "Your morning ritual",
+              body: "A spoonful of Ellaina with a little lemon juice — a simple Mediterranean ritual before your coffee.",
             },
           },
         };
