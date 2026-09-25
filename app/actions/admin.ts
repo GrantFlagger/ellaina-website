@@ -46,27 +46,45 @@ export type AdminProduct = {
   in_stock: boolean;
 };
 
+export type AdminRole = "super_admin" | "admin";
+
+export type AdminUser = { email: string; role: AdminRole; registered: boolean; created_at: string };
+
 export type AdminData = {
+  role: AdminRole;
   orders: AdminOrder[];
   messages: AdminMessage[];
-  newsletter: { email: string; language: string | null; created_at: string }[];
+  newsletter: { id: string; email: string; language: string | null; created_at: string }[];
   products: AdminProduct[];
+  /** Only loaded for super admins. */
+  admins: AdminUser[];
 };
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: "forbidden" | "failed"; message?: string };
 
-async function adminClient() {
+async function adminSession() {
   const insforge = createInsForgeServerClient();
-  const { data, error } = await insforge.database.rpc("is_admin");
-  return !error && data === true ? insforge : null;
+  const { data, error } = await insforge.database.rpc("admin_role");
+  return !error && (data === "super_admin" || data === "admin") ? { insforge, role: data as AdminRole } : null;
+}
+
+async function adminClient() {
+  return (await adminSession())?.insforge ?? null;
+}
+
+// The database re-checks the role; this just gives admins a clear "forbidden".
+async function superAdminClient() {
+  const session = await adminSession();
+  return session?.role === "super_admin" ? session.insforge : null;
 }
 
 export async function getAdminData(): Promise<Result<AdminData>> {
-  const insforge = await adminClient();
-  if (!insforge) return { ok: false, error: "forbidden" };
+  const session = await adminSession();
+  if (!session) return { ok: false, error: "forbidden" };
+  const { insforge, role } = session;
   const db = insforge.database;
 
-  const [orders, contact, b2b, restaurant, newsletter, products] = await Promise.all([
+  const [orders, contact, b2b, restaurant, newsletter, products, admins] = await Promise.all([
     db
       .from("orders")
       .select(
@@ -78,11 +96,12 @@ export async function getAdminData(): Promise<Result<AdminData>> {
     db.from("contact_messages").select("id, created_at, name, email, subject, message").order("created_at", { ascending: false }).limit(100),
     db.from("b2b_inquiries").select("id, created_at, business_name, contact_name, email, phone, message").order("created_at", { ascending: false }).limit(100),
     db.from("restaurant_inquiries").select("id, created_at, restaurant_name, contact_name, email, phone, city, message").order("created_at", { ascending: false }).limit(100),
-    db.from("newsletter_subscribers").select("email, language, created_at").order("created_at", { ascending: false }).limit(1000),
+    db.from("newsletter_subscribers").select("id, email, language, created_at").order("created_at", { ascending: false }).limit(1000),
     db.from("products").select("slug, name, volume, price, stock_quantity, in_stock").order("sort_order", { ascending: true }),
+    role === "super_admin" ? db.rpc("admin_list_admins") : Promise.resolve({ data: [], error: null }),
   ]);
 
-  const failed = [orders, contact, b2b, restaurant, newsletter, products].find((r) => r.error);
+  const failed = [orders, contact, b2b, restaurant, newsletter, products, admins].find((r) => r.error);
   if (failed) return { ok: false, error: "failed", message: failed.error?.message };
 
   type Row = Record<string, string | null>;
@@ -105,10 +124,12 @@ export async function getAdminData(): Promise<Result<AdminData>> {
   return {
     ok: true,
     data: {
+      role,
       orders: ((orders.data ?? []) as AdminOrder[]).map((o) => ({ ...o, subtotal: Number(o.subtotal) })),
       messages,
       newsletter: (newsletter.data ?? []) as AdminData["newsletter"],
       products: ((products.data ?? []) as AdminProduct[]).map((p) => ({ ...p, price: Number(p.price) })),
+      admins: (admins.data ?? []) as AdminUser[],
     },
   };
 }
@@ -148,5 +169,40 @@ export async function updateProductStock(input: {
     .from("products")
     .update({ stock_quantity: qty, in_stock: input.inStock })
     .eq("slug", input.slug);
+  return error ? { ok: false, error: "failed", message: error.message } : { ok: true, data: null };
+}
+
+export async function addAdmin(email: string): Promise<Result<null>> {
+  const insforge = await superAdminClient();
+  if (!insforge) return { ok: false, error: "forbidden" };
+
+  const { error } = await insforge.database.rpc("admin_add_admin", { p_email: email.trim() });
+  return error ? { ok: false, error: "failed", message: error.message } : { ok: true, data: null };
+}
+
+export async function removeAdmin(email: string): Promise<Result<null>> {
+  const insforge = await superAdminClient();
+  if (!insforge) return { ok: false, error: "forbidden" };
+
+  const { error } = await insforge.database.rpc("admin_remove_admin", { p_email: email });
+  return error ? { ok: false, error: "failed", message: error.message } : { ok: true, data: null };
+}
+
+export async function deleteOrder(orderId: string): Promise<Result<null>> {
+  const insforge = await superAdminClient();
+  if (!insforge) return { ok: false, error: "forbidden" };
+
+  const { error } = await insforge.database.rpc("admin_delete_order", { p_order_id: orderId });
+  return error ? { ok: false, error: "failed", message: error.message } : { ok: true, data: null };
+}
+
+export async function deleteSubmission(
+  kind: AdminMessage["kind"] | "newsletter",
+  id: string,
+): Promise<Result<null>> {
+  const insforge = await superAdminClient();
+  if (!insforge) return { ok: false, error: "forbidden" };
+
+  const { error } = await insforge.database.rpc("admin_delete_submission", { p_kind: kind, p_id: id });
   return error ? { ok: false, error: "failed", message: error.message } : { ok: true, data: null };
 }

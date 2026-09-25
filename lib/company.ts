@@ -9,9 +9,9 @@
  */
 export const COMPANY = {
   tradeName: "Ellaina Olive Oil",
-  legalName: { el: "[Νομική επωνυμία & νομική μορφή]", en: "[Legal name & legal form]" },
-  vatNumber: "[ΑΦΜ]",
-  taxOffice: { el: "[ΔΟΥ]", en: "[Tax office]" },
+  legalName: { el: "KALAITZIS ALEXANDROS", en: "ΚΑΛΑΪΤΖΗΣ ΑΛΕΞΑΝΔΡΟΣ" },
+  vatNumber: "[031649589]",
+  taxOffice: { el: "[ΔΟΥ:Καλλιθέας]", en: "[Tax office: Kallithea]" },
   gemi: "195010503000",
   address: {
     el: "Φρύνης 21, Παγκράτι, Αθήνα, Ελλάδα",

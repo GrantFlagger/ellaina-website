@@ -6,21 +6,27 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getOrderStatusLabel } from "@/lib/orders";
 import {
+  addAdmin,
+  deleteOrder,
+  deleteSubmission,
   getAdminData,
+  removeAdmin,
   updateOrderStatus,
   updateProductStock,
   type AdminData,
   type AdminOrder,
   type AdminProduct,
+  type AdminUser,
 } from "@/app/actions/admin";
 
-type Tab = "orders" | "messages" | "newsletter" | "products";
+type Tab = "orders" | "messages" | "newsletter" | "products" | "admins";
 
-const TABS: { id: Tab; label: string }[] = [
+const TABS: { id: Tab; label: string; superOnly?: boolean }[] = [
   { id: "orders", label: "Orders" },
   { id: "messages", label: "Messages" },
   { id: "newsletter", label: "Newsletter" },
   { id: "products", label: "Stock" },
+  { id: "admins", label: "Admins", superOnly: true },
 ];
 
 const euro = (n: number) => `€${n.toFixed(2)}`;
@@ -32,6 +38,7 @@ const input =
   "rounded-lg border border-bark/15 bg-white px-3 py-2 font-body text-sm text-bark outline-none focus:border-secondary dark:border-cream/15 dark:bg-night-subtle dark:text-cream";
 const button =
   "rounded-full bg-secondary px-4 py-2 font-body text-xs font-semibold text-bark transition-colors hover:bg-secondary-600 hover:text-white disabled:opacity-50";
+const dangerLink = "font-body text-xs text-bark/50 hover:text-red-600 disabled:opacity-50 dark:text-cream/45";
 
 export default function AdminDashboard() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -86,12 +93,28 @@ export default function AdminDashboard() {
   }
 
   const toShip = data.orders.filter((o) => o.status === "paid").length;
+  const isSuper = data.role === "super_admin";
+
+  // Super admin deletes: confirm, run, then reload (or alert on failure).
+  const remove = async (label: string, run: () => ReturnType<typeof deleteOrder>) => {
+    if (!window.confirm(`Delete ${label}? This can't be undone.`)) return;
+    const result = await run();
+    if (result.ok) await load();
+    else window.alert(result.message ?? "Delete failed");
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-32 sm:px-6">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-bark dark:text-cream">Admin</h1>
+          <h1 className="font-heading text-3xl font-bold text-bark dark:text-cream">
+            Admin
+            {isSuper && (
+              <span className="ml-3 rounded-full bg-primary/10 px-3 py-1 align-middle font-body text-xs font-semibold text-primary dark:bg-secondary/10 dark:text-secondary">
+                Super admin
+              </span>
+            )}
+          </h1>
           <p className="mt-1 font-body text-sm text-bark/60 dark:text-cream/55">
             {toShip} order{toShip === 1 ? "" : "s"} to ship · {data.messages.length} messages ·{" "}
             {data.newsletter.length} subscribers
@@ -103,7 +126,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mb-6 flex gap-2 overflow-x-auto">
-        {TABS.map((t) => (
+        {TABS.filter((t) => isSuper || !t.superOnly).map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
@@ -118,7 +141,13 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {tab === "orders" && <OrdersTab orders={data.orders} onChanged={load} />}
+      {tab === "orders" && (
+        <OrdersTab
+          orders={data.orders}
+          onChanged={load}
+          onDelete={isSuper ? (o) => remove(o.order_number, () => deleteOrder(o.id)) : undefined}
+        />
+      )}
       {tab === "messages" && (
         <div className="space-y-3">
           {data.messages.length === 0 && <Empty text="No messages yet." />}
@@ -131,6 +160,14 @@ export default function AdminDashboard() {
                 </p>
                 <span className="font-body text-xs text-bark/50 dark:text-cream/45">
                   {m.kind === "contact" ? "Contact" : m.kind === "b2b" ? "B2B" : "Restaurant"} · {when(m.created_at)}
+                  {isSuper && (
+                    <button
+                      onClick={() => remove(`this message from ${m.name}`, () => deleteSubmission(m.kind, m.id))}
+                      className={`${dangerLink} ml-3`}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </span>
               </div>
               <p className="mt-1 font-body text-sm text-secondary">
@@ -159,10 +196,18 @@ export default function AdminDashboard() {
               </button>
               <ul className="divide-y divide-bark/10 dark:divide-cream/10">
                 {data.newsletter.map((s) => (
-                  <li key={s.email} className="flex justify-between py-2 font-body text-sm text-bark dark:text-cream">
+                  <li key={s.id} className="flex justify-between gap-4 py-2 font-body text-sm text-bark dark:text-cream">
                     <span>{s.email}</span>
                     <span className="text-bark/50 dark:text-cream/45">
                       {s.language ?? "—"} · {when(s.created_at)}
+                      {isSuper && (
+                        <button
+                          onClick={() => remove(s.email, () => deleteSubmission("newsletter", s.id))}
+                          className={`${dangerLink} ml-3`}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </span>
                   </li>
                 ))}
@@ -182,6 +227,7 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
+      {tab === "admins" && isSuper && <AdminsTab admins={data.admins} onChanged={load} />}
     </div>
   );
 }
@@ -190,7 +236,17 @@ function Empty({ text }: { text: string }) {
   return <p className="font-body text-sm text-bark/60 dark:text-cream/55">{text}</p>;
 }
 
-function OrdersTab({ orders, onChanged }: { orders: AdminOrder[]; onChanged: () => Promise<void> }) {
+type OrderDeleter = (order: AdminOrder) => Promise<void>;
+
+function OrdersTab({
+  orders,
+  onChanged,
+  onDelete,
+}: {
+  orders: AdminOrder[];
+  onChanged: () => Promise<void>;
+  onDelete?: OrderDeleter;
+}) {
   const [filter, setFilter] = useState<"open" | "all">("open");
   const shown = filter === "open" ? orders.filter((o) => o.status === "paid" || o.status === "shipped") : orders;
 
@@ -202,13 +258,21 @@ function OrdersTab({ orders, onChanged }: { orders: AdminOrder[]; onChanged: () 
       </select>
       {shown.length === 0 && <Empty text="No orders here." />}
       {shown.map((o) => (
-        <OrderCard key={o.id} order={o} onChanged={onChanged} />
+        <OrderCard key={o.id} order={o} onChanged={onChanged} onDelete={onDelete} />
       ))}
     </div>
   );
 }
 
-function OrderCard({ order, onChanged }: { order: AdminOrder; onChanged: () => Promise<void> }) {
+function OrderCard({
+  order,
+  onChanged,
+  onDelete,
+}: {
+  order: AdminOrder;
+  onChanged: () => Promise<void>;
+  onDelete?: OrderDeleter;
+}) {
   const [tracking, setTracking] = useState(order.tracking_number ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -297,6 +361,86 @@ function OrderCard({ order, onChanged }: { order: AdminOrder; onChanged: () => P
           {error && <span className="font-body text-xs text-red-600">{error}</span>}
         </div>
       )}
+
+      {/* Only cancelled orders: paid/shipped/delivered ones are financial records. */}
+      {onDelete && order.status === "cancelled" && (
+        <div className="mt-4 border-t border-bark/10 pt-4 dark:border-cream/10">
+          <button onClick={() => void onDelete(order)} className={dangerLink}>
+            Delete order
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminsTab({ admins, onChanged }: { admins: AdminUser[]; onChanged: () => Promise<void> }) {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const run = async (action: () => ReturnType<typeof addAdmin>) => {
+    setBusy(true);
+    setError(null);
+    const result = await action();
+    setBusy(false);
+    if (result.ok) await onChanged();
+    else setError(result.message ?? "Failed");
+    return result.ok;
+  };
+
+  const add = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (await run(() => addAdmin(email))) setEmail("");
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="font-body text-xs text-bark/55 dark:text-cream/50">
+        Admins can manage orders and stock and read messages. Access is granted by email and starts once that person
+        registers and verifies the address.
+      </p>
+      <form onSubmit={add} className={`${card} flex flex-wrap items-center gap-3`}>
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="new.admin@example.com"
+          className={`${input} min-w-[16rem] flex-1`}
+        />
+        <button disabled={busy} className={button}>
+          Add admin
+        </button>
+        {error && <span className="font-body text-xs text-red-600">{error}</span>}
+      </form>
+      <ul className={`${card} divide-y divide-bark/10 dark:divide-cream/10`}>
+        {admins.map((a) => (
+          <li
+            key={a.email}
+            className="flex flex-wrap items-center justify-between gap-2 py-2 font-body text-sm text-bark dark:text-cream"
+          >
+            <span>
+              {a.email}
+              <span className="ml-2 text-xs text-bark/50 dark:text-cream/45">
+                {a.role === "super_admin" ? "Super admin" : "Admin"}
+                {!a.registered && " · not registered yet"}
+              </span>
+            </span>
+            {a.role === "admin" && (
+              <button
+                disabled={busy}
+                onClick={() => {
+                  if (window.confirm(`Remove ${a.email} as admin?`)) void run(() => removeAdmin(a.email));
+                }}
+                className={dangerLink}
+              >
+                Remove
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
