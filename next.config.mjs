@@ -14,15 +14,18 @@ const WIX_REDIRECTS = [
 ];
 
 /*
- * Preview deploys build in production mode, so checkout would send Stripe
- * back to the live site. The host only exposes the deploy's own URL at build
- * time, so bake it in as CHECKOUT_BASE_URL (unless one is set explicitly).
+ * Checkout otherwise sends Stripe back to the hard-coded www domain, which is
+ * wrong for preview deploys and for a Netlify site not yet on that domain.
+ * The host only exposes the deploy's own URL at build time, so bake it in as
+ * CHECKOUT_BASE_URL (unless one is set explicitly).
  */
-function previewCheckoutBaseUrl() {
+function deployCheckoutBaseUrl() {
   if (process.env.CHECKOUT_BASE_URL) return undefined;
   // Netlify: CONTEXT is production | deploy-preview | branch-deploy | dev.
-  if (process.env.NETLIFY === "true" && process.env.CONTEXT !== "production") {
-    return process.env.DEPLOY_PRIME_URL;
+  // URL is the site's primary address: the custom domain once one is set,
+  // otherwise the .netlify.app subdomain.
+  if (process.env.NETLIFY === "true") {
+    return process.env.CONTEXT === "production" ? process.env.URL : process.env.DEPLOY_PRIME_URL;
   }
   // Vercel: VERCEL_BRANCH_URL has no scheme.
   if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL) {
@@ -31,13 +34,13 @@ function previewCheckoutBaseUrl() {
   return undefined;
 }
 
-const previewBaseUrl = previewCheckoutBaseUrl();
+const deployBaseUrl = deployCheckoutBaseUrl();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
 
-  env: previewBaseUrl ? { CHECKOUT_BASE_URL: previewBaseUrl } : {},
+  env: deployBaseUrl ? { CHECKOUT_BASE_URL: deployBaseUrl } : {},
 
   // Product photos are served from InsForge Storage (which redirects to its CDN).
   images: {
