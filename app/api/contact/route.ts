@@ -56,9 +56,19 @@ async function sendOutlookMessage(input: {
     cache: "no-store",
   });
 
-  if (!tokenResponse.ok) return { ok: false as const, status: 502 };
+  if (!tokenResponse.ok) {
+    const details = await tokenResponse.json().catch(() => ({})) as { error?: string };
+    console.error("Microsoft OAuth token request failed", {
+      status: tokenResponse.status,
+      code: details.error ?? "unknown_error",
+    });
+    return { ok: false as const, status: 502 };
+  }
   const token = (await tokenResponse.json()) as { access_token?: string };
-  if (!token.access_token) return { ok: false as const, status: 502 };
+  if (!token.access_token) {
+    console.error("Microsoft OAuth response did not include an access token");
+    return { ok: false as const, status: 502 };
+  }
 
   const response = await fetch(
     `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(OUTLOOK_EMAIL)}/sendMail`,
@@ -81,7 +91,16 @@ async function sendOutlookMessage(input: {
     },
   );
 
-  return response.ok ? { ok: true as const } : { ok: false as const, status: 502 };
+  if (!response.ok) {
+    const details = await response.json().catch(() => ({})) as { error?: { code?: string } };
+    console.error("Microsoft Graph sendMail failed", {
+      status: response.status,
+      code: details.error?.code ?? "unknown_error",
+    });
+    return { ok: false as const, status: 502 };
+  }
+
+  return { ok: true as const };
 }
 
 export async function POST(request: NextRequest) {
