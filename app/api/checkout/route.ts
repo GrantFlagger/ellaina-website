@@ -5,6 +5,7 @@ import {
 } from "@/lib/insforge-server";
 import type { OrderItem } from "@/lib/orders";
 import { SITE_URL } from "@/lib/seo";
+import { PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 
 /**
  * Stripe environment for checkout. Defaults to "test" so a missing env var
@@ -62,6 +63,10 @@ function error(status: number, reason: string, message?: string) {
  * (public.fulfill_stripe_order), never by the success redirect.
  */
 export async function POST(request: NextRequest) {
+  if (!PRODUCT_PURCHASES_ENABLED) {
+    return error(503, "temporarily_unavailable", "Online ordering is temporarily unavailable");
+  }
+
   let body: CheckoutRequest;
   try {
     body = await request.json();

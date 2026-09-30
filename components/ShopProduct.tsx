@@ -9,6 +9,7 @@ import { PRODUCT_SIZES, type ProductSize } from "@/lib/products";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
 import { translations } from "@/lib/translations";
+import { PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 
 const TRUST_ICONS = [Droplets, Leaf, MapPin, Award] as const;
 
@@ -159,13 +160,19 @@ export default function ShopProduct() {
             </motion.div>
 
             <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-4">
-              <a
-                href="#choose-size"
-                className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-lg active:scale-[0.97]"
-              >
-                <ShoppingCart className="h-4 w-4" strokeWidth={2} />
-                {t.orderNow}
-              </a>
+              {PRODUCT_PURCHASES_ENABLED ? (
+                <a href="#choose-size" className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-lg active:scale-[0.97]">
+                  <ShoppingCart className="h-4 w-4" strokeWidth={2} />
+                  {t.orderNow}
+                </a>
+              ) : (
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-3.5 font-body text-sm font-semibold tracking-wide text-bark transition-all duration-200 hover:bg-secondary-600 hover:text-white hover:shadow-lg"
+                >
+                  {lang === "el" ? "Ενδιαφέρεστε; Επικοινωνήστε μαζί μας" : "Interested? Contact us"}
+                </Link>
+              )}
 
               <a
                 href="#chemical-analysis"
@@ -344,7 +351,7 @@ export default function ShopProduct() {
 // ── Size card ─────────────────────────────────────────────────────────────────
 
 function SizeCard({ size }: { size: ProductSize }) {
-  const [qty,   setQty]   = useState(1);
+  const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { lang } = useLanguage();
   const { addItem } = useCart();
@@ -404,23 +411,29 @@ function SizeCard({ size }: { size: ProductSize }) {
         <div className="flex shrink-0 flex-col items-start gap-4 sm:items-end">
           <span className="font-heading text-2xl font-bold text-primary dark:text-secondary">{size.price}</span>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center overflow-hidden rounded-full border border-light dark:border-white/10 bg-cream dark:bg-night">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Decrease">−</button>
-              <span className="w-7 text-center font-body text-sm font-semibold text-bark dark:text-cream">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Increase">+</button>
+          {PRODUCT_PURCHASES_ENABLED ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center overflow-hidden rounded-full border border-light dark:border-white/10 bg-cream dark:bg-night">
+                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Decrease">−</button>
+                <span className="w-7 text-center font-body text-sm font-semibold text-bark dark:text-cream">{qty}</span>
+                <button onClick={() => setQty((q) => q + 1)} className="flex h-9 w-9 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Increase">+</button>
+              </div>
+              <button
+                onClick={handleAdd}
+                className={["flex items-center gap-2 rounded-full px-5 py-2.5 font-body text-sm font-semibold tracking-wide transition-all duration-300 active:scale-[0.97]", added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white"].join(" ")}
+              >
+                {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2} />}
+                {added ? shopT.added : shopT.addToCart}
+              </button>
             </div>
-
-            <button
-              onClick={handleAdd}
-              className={["flex items-center gap-2 rounded-full px-5 py-2.5 font-body text-sm font-semibold tracking-wide transition-all duration-300 active:scale-[0.97]",
-                added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white",
-              ].join(" ")}
+          ) : (
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-full bg-secondary px-5 py-2.5 font-body text-sm font-semibold tracking-wide text-bark transition-colors hover:bg-secondary-600 hover:text-white"
             >
-              {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2} />}
-              {added ? shopT.added : shopT.addToCart}
-            </button>
-          </div>
+              {lang === "el" ? "Επικοινωνία" : "Contact us"}
+            </Link>
+          )}
         </div>
       </div>
     </motion.div>

@@ -9,6 +9,7 @@ import { PRODUCT_SIZES, type ProductSize } from "@/lib/products";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
 import { translations } from "@/lib/translations";
+import { PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 
 const TRUST_ICONS = [Droplets, Leaf, MapPin, Award] as const;
 
@@ -59,15 +60,15 @@ export default function ProductDetail({ size }: { size: ProductSize }) {
   const name       = size.name[lang];
   const descriptor = itemT?.descriptor || size.descriptor;
 
-  const currentIndex = PRODUCT_SIZES.findIndex((s) => s.id === size.id);
-  const prevSize = PRODUCT_SIZES[(currentIndex - 1 + PRODUCT_SIZES.length) % PRODUCT_SIZES.length];
-  const nextSize = PRODUCT_SIZES[(currentIndex + 1) % PRODUCT_SIZES.length];
-
   const handleAdd = () => {
     addItem(size, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
+
+  const currentIndex = PRODUCT_SIZES.findIndex((s) => s.id === size.id);
+  const prevSize = PRODUCT_SIZES[(currentIndex - 1 + PRODUCT_SIZES.length) % PRODUCT_SIZES.length];
+  const nextSize = PRODUCT_SIZES[(currentIndex + 1) % PRODUCT_SIZES.length];
 
   return (
     <>
@@ -179,26 +180,37 @@ export default function ProductDetail({ size }: { size: ProductSize }) {
               </div>
             </motion.div>
 
-            {/* Price + quantity + add to cart */}
-            <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-5">
-              <span className="font-heading text-3xl font-bold text-primary dark:text-secondary">{size.price}</span>
-
-              <div className="flex items-center overflow-hidden rounded-full border border-light dark:border-white/10 bg-cream dark:bg-night">
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-10 w-10 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Decrease">−</button>
-                <span className="w-8 text-center font-body text-sm font-semibold text-bark dark:text-cream">{qty}</span>
-                <button onClick={() => setQty((q) => q + 1)} className="flex h-10 w-10 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Increase">+</button>
-              </div>
-
-              <button
-                onClick={handleAdd}
-                className={["flex items-center gap-2 rounded-full px-8 py-3.5 font-body text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]",
-                  added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white hover:shadow-lg",
-                ].join(" ")}
-              >
-                {added ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <ShoppingCart className="h-4 w-4" strokeWidth={2} />}
-                {added ? t.added : t.addToCart}
-              </button>
-            </motion.div>
+            {PRODUCT_PURCHASES_ENABLED ? (
+              <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-5">
+                <span className="font-heading text-3xl font-bold text-primary dark:text-secondary">{size.price}</span>
+                <div className="flex items-center overflow-hidden rounded-full border border-light dark:border-white/10 bg-cream dark:bg-night">
+                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-10 w-10 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Decrease">−</button>
+                  <span className="w-8 text-center font-body text-sm font-semibold text-bark dark:text-cream">{qty}</span>
+                  <button onClick={() => setQty((q) => q + 1)} className="flex h-10 w-10 items-center justify-center text-bark/60 dark:text-cream/50 hover:text-bark dark:hover:text-cream transition-colors" aria-label="Increase">+</button>
+                </div>
+                <button
+                  onClick={handleAdd}
+                  className={["flex items-center gap-2 rounded-full px-8 py-3.5 font-body text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]", added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white hover:shadow-lg"].join(" ")}
+                >
+                  {added ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <ShoppingCart className="h-4 w-4" strokeWidth={2} />}
+                  {added ? t.added : t.addToCart}
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div variants={fadeUp} className="mt-8 rounded-xl border border-secondary/30 bg-secondary/10 p-5">
+                <p className="font-body text-sm leading-relaxed text-bark/75 dark:text-cream/70">
+                  {lang === "el"
+                    ? "Ενδιαφέρεστε για αυτό το προϊόν; Επικοινωνήστε μαζί μας και θα χαρούμε να σας εξυπηρετήσουμε."
+                    : "Interested in this product? Contact us and we’ll be happy to help."}
+                </p>
+                <Link
+                  href="/contact"
+                  className="mt-4 inline-flex items-center justify-center rounded-full bg-secondary px-6 py-3 font-body text-sm font-semibold text-bark transition-colors hover:bg-secondary-600 hover:text-white"
+                >
+                  {lang === "el" ? "Επικοινωνήστε μαζί μας" : "Contact us"}
+                </Link>
+              </motion.div>
+            )}
 
             <motion.div variants={fadeUp} className="mt-5">
               <a

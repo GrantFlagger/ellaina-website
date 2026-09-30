@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import { PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 import { MotionConfig } from "framer-motion";
 import type { ReactNode } from "react";
 
@@ -17,7 +18,7 @@ export default function Providers({ children }: { children: ReactNode }) {
           <AuthProvider>
             <CartProvider>
               {children}
-              <CartDrawer />
+              {PRODUCT_PURCHASES_ENABLED && <CartDrawer />}
             </CartProvider>
           </AuthProvider>
         </LanguageProvider>

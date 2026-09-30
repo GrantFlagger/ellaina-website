@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Send } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { insforge } from "@/lib/insforge";
 
 import Honeypot, { isBot } from "@/components/Honeypot";
 type FormState = {
@@ -68,19 +67,19 @@ export default function RestaurantInquiryForm() {
     }
     setStatus("loading");
 
-    const { error } = await insforge.database.from("restaurant_inquiries").insert([
-      {
-        restaurant_name: form.restaurantName,
-        contact_name: form.contactName,
-        email: form.email,
-        phone: form.phone,
-        city: form.city,
-        message: form.message,
-        language: lang,
-      },
-    ]);
+    let response: Response;
+    try {
+      response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "restaurant", ...form, language: lang }),
+      });
+    } catch {
+      setStatus("error");
+      return;
+    }
 
-    if (error) {
+    if (!response.ok) {
       setStatus("error");
       return;
     }

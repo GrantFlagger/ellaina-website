@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Check } from "lucide-react";
+import { ShoppingCart, Check, ChevronRight } from "lucide-react";
 import { PRODUCT_SIZES, dbProductToSize, type ProductSize, type DbProduct } from "@/lib/products";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
 import { translations } from "@/lib/translations";
 import { insforge } from "@/lib/insforge";
+import { PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 
 const headerContainer = {
   hidden: {},
@@ -118,7 +119,6 @@ function ProductCard({ size }: { size: ProductSize }) {
   const descriptor = itemT?.descriptor || size.descriptor;
 
   const handleAdd = (e: React.MouseEvent) => {
-    // Prevent the click from bubbling up to the card's Link and navigating away.
     e.preventDefault();
     e.stopPropagation();
     addItem(size, 1);
@@ -176,15 +176,20 @@ function ProductCard({ size }: { size: ProductSize }) {
             <div className="mt-4 flex items-center justify-between border-t border-light/60 dark:border-white/8 pt-4">
               <span className="font-heading text-lg font-bold text-primary dark:text-secondary">{size.price}</span>
             </div>
-            <button
-              onClick={handleAdd}
-              className={["mt-4 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[0.8125rem] font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]",
-                added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white",
-              ].join(" ")}
-            >
-              {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2.2} />}
-              {added ? shopT.added : t.orderNow}
-            </button>
+            {PRODUCT_PURCHASES_ENABLED ? (
+              <button
+                onClick={handleAdd}
+                className={["mt-4 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[0.8125rem] font-semibold tracking-wide transition-all duration-200 active:scale-[0.97]", added ? "bg-primary text-white" : "bg-secondary text-bark hover:bg-secondary-600 hover:text-white"].join(" ")}
+              >
+                {added ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : <ShoppingCart className="h-3.5 w-3.5" strokeWidth={2.2} />}
+                {added ? shopT.added : t.orderNow}
+              </button>
+            ) : (
+              <span className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-2.5 text-[0.8125rem] font-semibold tracking-wide text-bark transition-colors group-hover:bg-secondary-600 group-hover:text-white">
+                {lang === "el" ? "Δείτε το προϊόν" : "View product"}
+                <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+            )}
           </div>
         </div>
       </Link>

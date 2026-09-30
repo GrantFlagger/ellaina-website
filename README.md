@@ -21,6 +21,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
+## Outlook inquiry emails
+
+The contact, B2B, and restaurant inquiry forms send directly through Microsoft Graph to `OUTLOOK_EMAIL` (defaults to `info@ellainaoliveoil.com`). These forms do not store submissions in InsForge.
+
+Configure these server-only environment variables in Netlify and locally for development:
+
+- `MS_TENANT_ID`
+- `MS_CLIENT_ID`
+- `MS_CLIENT_SECRET`
+- `OUTLOOK_EMAIL` (optional; defaults to `info@ellainaoliveoil.com`)
+
+Register a single-tenant app in Microsoft Entra ID, grant Microsoft Graph **Application** permission `Mail.Send`, and grant admin consent. Keep the client secret only in Netlify environment settings or `.env.local`; never expose it with a `NEXT_PUBLIC_` variable. Restrict the app's mailbox access to this sender mailbox in Exchange Online. Redeploy after setting the Netlify variables.
+
+## Learn More
 
 To learn more about Next.js, take a look at the following resources:
 

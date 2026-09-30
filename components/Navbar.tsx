@@ -9,6 +9,7 @@ import { Menu, X, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { CUSTOMER_AUTH_ENABLED, PRODUCT_PURCHASES_ENABLED } from "@/lib/availability";
 import { translations } from "@/lib/translations";
 
 export default function Navbar() {
@@ -269,7 +270,7 @@ export default function Navbar() {
                 profile page has its own sign-out control). Shows a gold
                 initial circle when signed in so it's clear at a glance
                 that you're logged in, or a plain icon when signed out. */}
-            {isAuthenticated ? (
+            {CUSTOMER_AUTH_ENABLED && (isAuthenticated ? (
               <Link
                 href="/profile"
                 aria-label="Your profile"
@@ -285,9 +286,9 @@ export default function Navbar() {
               >
                 <User className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.8} />
               </Link>
-            )}
+            ))}
 
-            <button
+            {PRODUCT_PURCHASES_ENABLED && <button
               onClick={openCart}
               aria-label="Open cart"
               className={`relative p-1.5 rounded-full transition-colors duration-200 ${controlColor}`}
@@ -298,7 +299,7 @@ export default function Navbar() {
                   {count}
                 </span>
               )}
-            </button>
+            </button>}
 
             <Link
               href="/shop"
@@ -309,7 +310,7 @@ export default function Navbar() {
           </nav>
 
           <div className="md:hidden flex items-center gap-1">
-            <button
+            {PRODUCT_PURCHASES_ENABLED && <button
               onClick={openCart}
               aria-label="Open cart"
               className={`relative p-2 rounded-full transition-colors duration-200 ${controlColor}`}
@@ -320,7 +321,7 @@ export default function Navbar() {
                   {count}
                 </span>
               )}
-            </button>
+            </button>}
 
             <button
               onClick={() => setMobileOpen((v) => !v)}
@@ -371,7 +372,7 @@ export default function Navbar() {
           >
             <nav className="flex flex-col px-5 pt-3 pb-6 gap-0">
               {/* About group — collapsible accordion on mobile */}
-              <motion.div
+              {CUSTOMER_AUTH_ENABLED && <motion.div
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2 }}
@@ -415,7 +416,7 @@ export default function Navbar() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </motion.div>}
 
               {/* Shop + Benefits */}
               {NAV_LINKS.map((link, i) => {

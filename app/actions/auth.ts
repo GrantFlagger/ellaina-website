@@ -5,6 +5,7 @@ import {
   createInsForgeServerClient,
 } from "@/lib/insforge-server";
 import type { ActionResult, AuthErrorCode, AuthUser } from "@/lib/auth-types";
+import { CUSTOMER_AUTH_ENABLED } from "@/lib/availability";
 
 type SdkUser = {
   id: string;
@@ -38,6 +39,10 @@ function fail(error: SdkError, fallback: AuthErrorCode = "unknown"): ActionResul
 
 const clean = (s: string) => s.trim().toLowerCase();
 
+function authUnavailable<T>(): ActionResult<T> {
+  return { ok: false, code: "unknown", message: "Customer sign-in and registration are temporarily unavailable" };
+}
+
 export async function getSessionUser(): Promise<AuthUser | null> {
   const insforge = createInsForgeServerClient();
   const { data, error } = await insforge.auth.getCurrentUser();
@@ -49,6 +54,8 @@ export async function signIn(
   email: string,
   password: string,
 ): Promise<ActionResult<{ user: AuthUser }>> {
+  if (!CUSTOMER_AUTH_ENABLED) return authUnavailable();
+
   const auth = createInsForgeAuthActions();
   const { data, error } = await auth.signInWithPassword({ email: clean(email), password });
   if (error || !data?.user) return fail(error, "invalid_credentials");
@@ -60,6 +67,8 @@ export async function signUp(input: {
   password: string;
   name: string;
 }): Promise<ActionResult<{ needsVerification: boolean; user: AuthUser | null }>> {
+  if (!CUSTOMER_AUTH_ENABLED) return authUnavailable();
+
   const auth = createInsForgeAuthActions();
   const { data, error } = await auth.signUp({
     email: clean(input.email),
@@ -80,6 +89,8 @@ export async function verifyEmail(
   email: string,
   otp: string,
 ): Promise<ActionResult<{ user: AuthUser }>> {
+  if (!CUSTOMER_AUTH_ENABLED) return authUnavailable();
+
   const auth = createInsForgeAuthActions();
   const { data, error } = await auth.verifyEmail({ email: clean(email), otp: otp.trim() });
   if (error || !data?.user) return fail(error, "invalid_code");
@@ -87,6 +98,8 @@ export async function verifyEmail(
 }
 
 export async function resendVerification(email: string): Promise<ActionResult> {
+  if (!CUSTOMER_AUTH_ENABLED) return authUnavailable();
+
   const insforge = createInsForgeServerClient();
   const { error } = await insforge.auth.resendVerificationEmail({ email: clean(email) });
   return error ? fail(error) : { ok: true };

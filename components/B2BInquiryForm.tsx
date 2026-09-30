@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Send } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { insforge } from "@/lib/insforge";
 
 import Honeypot, { isBot } from "@/components/Honeypot";
 type FormState = {
@@ -65,18 +64,19 @@ export default function B2BInquiryForm() {
     }
     setStatus("loading");
 
-    const { error } = await insforge.database.from("b2b_inquiries").insert([
-      {
-        business_name: form.businessName,
-        contact_name: form.contactName,
-        email: form.email,
-        phone: form.phone,
-        message: form.message,
-        language: lang,
-      },
-    ]);
+    let response: Response;
+    try {
+      response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "b2b", ...form, language: lang }),
+      });
+    } catch {
+      setStatus("error");
+      return;
+    }
 
-    if (error) {
+    if (!response.ok) {
       setStatus("error");
       return;
     }

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { User, ShoppingBag, MapPinned, ArrowRight, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { insforge } from "@/lib/insforge";
 
 import Honeypot, { isBot } from "@/components/Honeypot";
 const fadeUp = {
@@ -260,19 +259,28 @@ function ContactForm({ t }: { t: Copy }) {
 
     setStatus("loading");
 
-    // Phone is optional and has no column of its own, so it rides along
-    // with the message body when provided.
-    const phone = field("c-phone");
-    const { error } = await insforge.database.from("contact_messages").insert([
-      {
-        name: `${field("c-first")} ${field("c-last")}`.trim(),
-        email: field("c-email").toLowerCase(),
-        subject: field("c-reason"),
-        message: phone ? `${field("c-message")}\n\nPhone: ${phone}` : field("c-message"),
-      },
-    ]);
+    let response: Response;
+    try {
+      response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "contact",
+          firstName: field("c-first"),
+          lastName: field("c-last"),
+          email: field("c-email"),
+          reason: field("c-reason"),
+          phone: field("c-phone"),
+          message: field("c-message"),
+          company_website: field("company_website"),
+        }),
+      });
+    } catch {
+      setStatus("error");
+      return;
+    }
 
-    if (error) {
+    if (!response.ok) {
       setStatus("error");
       return;
     }
