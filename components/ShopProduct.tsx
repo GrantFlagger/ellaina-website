@@ -32,9 +32,6 @@ export default function ShopProduct() {
         <motion.p variants={fadeUp} className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.26em] text-secondary">
           {t.collection}
         </motion.p>
-        <motion.h1 variants={fadeUp} className="font-heading text-2xl font-bold tracking-tight text-bark dark:text-cream sm:text-3xl">
-          {t.chooseSize}
-        </motion.h1>
         <motion.div variants={fadeUp} className="mt-5 h-px w-10 bg-secondary" />
       </motion.div>
 
@@ -98,9 +95,6 @@ function SizeCard({ size }: { size: ProductSize }) {
               className="opacity-30"
               aria-hidden
             />
-            <span className="font-body text-[0.65rem] font-semibold uppercase tracking-widest text-bark/30 dark:text-cream/30">
-              {t.products.photoComingSoon}
-            </span>
           </div>
         )}
       </div>

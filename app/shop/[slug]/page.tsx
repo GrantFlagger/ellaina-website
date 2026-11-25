@@ -14,7 +14,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   if (!size) return {};
   return pageMetadata({
     title: `${size.volume} Εξαιρετικό Παρθένο Ελαιόλαδο`,
-    description: `${size.name.el} — Ellaina ${size.volume}: εξαιρετικό παρθένο ελαιόλαδο Κορωνέικης, ψυχρής έκθλιψης, από την Πρέβεζα. ${size.price}.`,
+    description: `${size.name.el} — Ellaina ${size.volume}: εξαιρετικό παρθένο ελαιόλαδο Κορωνέικης, ψυχρής έκθλιψης, από την Ελλάδα. ${size.price}.`,
     path: `/shop/${size.id}`,
     image: `/og/products/${size.id}.jpg`,
     imageAlt: `Ellaina Extra Virgin Olive Oil ${size.volume}`,

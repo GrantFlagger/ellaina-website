@@ -38,8 +38,8 @@ const POINTS = [
     icon: Recycle,
     titleEl: "Σεβασμός στη γη",
     titleEn: "Respect for the land",
-    bodyEl: "Πρακτικές που προστατεύουν το έδαφος και τους ελαιώνες της Πρέβεζας.",
-    bodyEn: "Practices that protect the soil and the olive groves of Preveza.",
+    bodyEl: "Πρακτικές που προστατεύουν το έδαφος και τους ελαιώνες μας.",
+    bodyEn: "Practices that protect the soil and our olive groves.",
   },
 ] as const;
 

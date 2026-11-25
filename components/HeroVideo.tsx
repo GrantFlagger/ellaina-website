@@ -110,7 +110,7 @@ export default function HeroVideo() {
             />
             <span className="sr-only">
               {lang === "el"
-                ? " — Εξαιρετικό Παρθένο Ελαιόλαδο από την Πρέβεζα"
+                ? " — Εξαιρετικό Παρθένο Ελαιόλαδο από την Ελλάδα"
                 : " — Greek Extra Virgin Olive Oil from Preveza"}
             </span>
           </h1>

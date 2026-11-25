@@ -29,7 +29,7 @@ const en = {
   },
   journey: {
     scenes: [
-      { eyebrow: 'Chapter One',   title: 'The Grove',    subtitle: 'Centuries-old trees on the sunlit hills of Epirus, where every harvest begins.' },
+      { eyebrow: 'Chapter One',   title: 'The Grove',    subtitle: 'Centuries-old trees on the sunlit hills of Greece, where every harvest begins.' },
       { eyebrow: 'Chapter Two',   title: 'The Harvest',  subtitle: 'Each Koroneiki olive picked by hand at the very peak of ripeness.' },
       { eyebrow: 'Chapter Three', title: 'The Mill',     subtitle: 'Cold-pressed within hours, the ancient stone wheel coaxes out the first oil.' },
       { eyebrow: 'Chapter Four',  title: 'Liquid Gold',  subtitle: 'A pure, golden stream — nothing added, nothing taken away.' },
@@ -40,19 +40,19 @@ const en = {
   },
   about: {
     label:      'Our Values',
-    heading:    'A Family Legacy from the Fields of Epirus',
+    heading:    'A Legacy from the Fields of Greece',
     beat1Title: 'Our Land',
-    p1:         "Preveza is one of the Mediterranean's most distinctive olive-growing regions, where the microclimate and the Koroneiki variety create outstanding production conditions. In 2025, the European research project OliveOilMedNet confirmed the quality of the region, as all 100 samples from local producers were classified as Extra Virgin Olive Oil.",
-    beat2Title: 'Our Estate',
-    p2:         "On our estate, Koroneiki olives are grown in a landscape favored by sunshine, the Ionian sea breeze, and the care of every generation. Harvest happens at the ideal moment, with respect for the fruit, so that every drop keeps its natural fruity character.",
+    p1:         "Greece is home to some of the Mediterranean's most distinctive olive-growing regions, where the climate and the Koroneiki variety create outstanding production conditions. In 2025, the European research project OliveOilMedNet confirmed the quality of Greek production, as all 100 samples from local producers were classified as Extra Virgin Olive Oil.",
+    beat2Title: 'Our Producers',
+    p2:         "Across the estates of our producers, Koroneiki olives are grown in landscapes favored by sunshine, a gentle sea breeze, and the care of every generation. Harvest happens at the ideal moment, with respect for the fruit, so that every drop keeps its natural fruity character.",
     beat3Title: 'Our Brand',
     p3:         "We create an olive oil that expresses authenticity, aesthetics, and modern Mediterranean quality. Every bottle is a continuation of our tradition, carrying the pure taste of our land to the everyday table.",
     learnMore:  'Learn More',
   },
   products: {
     label:          'Standard Collection',
-    heading:        'One Oil. Three Sizes.',
-    description:    'Koroneiki variety, cold-pressed in Epirus. The same exceptional oil — choose the size that suits you.',
+    heading:        'From Our Grove to Your Table',
+    description:    'Koroneiki variety, cold-pressed in Greece. Authentic taste in every drop.',
     orderNow:       'Order Now',
     photoComingSoon:'Photo coming soon',
     items: {
@@ -84,7 +84,7 @@ const en = {
   sustainability: {
     label:         'Our Commitment',
     heading:       'Farming in Harmony with the Land',
-    body:          'For generations the Tasouli family has tended these groves, letting the rhythms of the Epirus fields guide our harvest — because the land that gives us everything deserves our care in return.',
+    body:          'For generations, our producers have tended these groves with care, letting the natural rhythms of the Greek land guide every harvest — because the land that gives us everything deserves our care in return.',
     readOurValues: 'Read Our Values',
   },
   testimonials: {
@@ -121,9 +121,9 @@ const en = {
   shop: {
     home:          'Home',
     shopBreadcrumb:'Shop',
-    eyebrow:       'Koroneiki Variety  ·  Epirus, Greece',
+    eyebrow:       'Koroneiki Variety  ·  Greece',
     heading:       'Ellaina Extra Virgin\nOlive Oil',
-    description:   'Cold-pressed within hours of harvest from hand-picked Koroneiki olives grown in the fields of Epirus, outside Preveza. Certified by accredited laboratory — acidity 0.24%, well below the EU limit of 0.80%.',
+    description:   'Cold-pressed within hours of harvest from hand-picked Koroneiki olives grown in the fields of Greece. Certified by accredited laboratory — acidity 0.24%, well below the EU limit of 0.80%.',
     orderNow:      'Order Now',
     chooseSize:    'Choose Your Size',
     collection:    'Standard Collection',
@@ -137,7 +137,7 @@ const en = {
     nutFootnote:   '* NRV = Nutrient Reference Value',
     addToCart:     'Add to Cart',
     added:         'Added',
-    trustBadges: ['Cold Pressed', 'Koroneiki Variety', 'Epirus, Greece', 'Lab Certified'],
+    trustBadges: ['Cold Pressed', 'Koroneiki Variety', 'Greece', 'Lab Certified'],
   },
   checkoutPage: {
     eyebrow:       "Order",
@@ -189,7 +189,7 @@ const el: typeof en = {
   },
   journey: {
     scenes: [
-      { eyebrow: 'Κεφάλαιο Πρώτο',   title: 'Ο Ελαιώνας',     subtitle: 'Αιωνόβια δέντρα στους ηλιόλουστους λόφους της Ηπείρου, όπου ξεκινά κάθε συγκομιδή.' },
+      { eyebrow: 'Κεφάλαιο Πρώτο',   title: 'Ο Ελαιώνας',     subtitle: 'Αιωνόβια δέντρα στους ηλιόλουστους λόφους της Ελλάδας, όπου ξεκινά κάθε συγκομιδή.' },
       { eyebrow: 'Κεφάλαιο Δεύτερο',  title: 'Η Συγκομιδή',     subtitle: 'Κάθε Κορωνέικη ελιά μαζεύεται στο χέρι, στο αποκορύφωμα της ωρίμανσης.' },
       { eyebrow: 'Κεφάλαιο Τρίτο',    title: 'Ο Μύλος',         subtitle: 'Ψυχρή έκθλιψη μέσα σε ώρες· η πέτρινη μυλόπετρα αποσπά το πρώτο λάδι.' },
       { eyebrow: 'Κεφάλαιο Τέταρτο',  title: 'Υγρό Χρυσάφι',    subtitle: 'Ένα καθαρό, χρυσό ρεύμα — τίποτα δεν προστίθεται, τίποτα δεν αφαιρείται.' },
@@ -200,19 +200,19 @@ const el: typeof en = {
   },
   about: {
     label:      'Οι αξίες μας',
-    heading:    'Μια Οικογενειακή Κληρονομιά από τα Χωράφια της Ηπείρου',
+    heading:    'Μια Κληρονομιά από τα Χωράφια της Ελλάδας',
     beat1Title: 'Ο Τόπος μας',
-    p1:         'Η Πρέβεζα αποτελεί έναν από τους πιο ξεχωριστούς ελαιοκομικούς τόπους της Μεσογείου, όπου το μικροκλίμα και η Κορωνέικη ποικιλία δημιουργούν εξαιρετικές συνθήκες παραγωγής. Το 2025, το ευρωπαϊκό ερευνητικό έργο OliveOilMedNet επιβεβαίωσε την ποιότητα της περιοχής, καθώς και τα 100 δείγματα τοπικών παραγωγών κατατάχθηκαν ως Εξαιρετικά Παρθένα Ελαιόλαδα.',
-    beat2Title: 'Το Κτήμα μας',
-    p2:         'Στο κτήμα μας, οι Κορωνέικες ελιές καλλιεργούνται σε ένα τοπίο που ευνοείται από την ηλιοφάνεια, τη θαλάσσια αύρα του Ιονίου και τη φροντίδα κάθε γενιάς. Η συγκομιδή γίνεται την ιδανική στιγμή, με σεβασμό στον καρπό, ώστε κάθε σταγόνα να διατηρεί τον φυσικό φρουτώδη χαρακτήρα της.',
+    p1:         'Η Ελλάδα αποτελεί έναν από τους πιο ξεχωριστούς ελαιοκομικούς τόπους της Μεσογείου, όπου το κλίμα και η Κορωνέικη ποικιλία δημιουργούν εξαιρετικές συνθήκες παραγωγής. Το 2025, το ευρωπαϊκό ερευνητικό έργο OliveOilMedNet επιβεβαίωσε την ποιότητα της ελληνικής παραγωγής, καθώς και τα 100 δείγματα τοπικών παραγωγών κατατάχθηκαν ως Εξαιρετικά Παρθένα Ελαιόλαδα.',
+    beat2Title: 'Οι Παραγωγοί μας',
+    p2:         'Στα κτήματα των παραγωγών μας, οι Κορωνέικες ελιές καλλιεργούνται σε τοπία που ευνοούνται από την ηλιοφάνεια, την απαλή θαλάσσια αύρα και τη φροντίδα κάθε γενιάς. Η συγκομιδή γίνεται την ιδανική στιγμή, με σεβασμό στον καρπό, ώστε κάθε σταγόνα να διατηρεί τον φυσικό φρουτώδη χαρακτήρα της.',
     beat3Title: 'Το Brand μας',
     p3:         'Δημιουργούμε ένα ελαιόλαδο που εκφράζει αυθεντικότητα, αισθητική και σύγχρονη μεσογειακή ποιότητα. Κάθε φιάλη είναι η συνέχεια της παράδοσής μας και μεταφέρει την καθαρή γεύση του τόπου μας στο καθημερινό τραπέζι.',
     learnMore:  'Μάθε Περισσότερα',
   },
   products: {
     label:          'Τυπική Συλλογή',
-    heading:        'Ένα Λάδι. Τρία Μεγέθη.',
-    description:    'Ποικιλία Κορωνέικη, ψυχρή έκθλιψη στην Ήπειρο. Το ίδιο εξαιρετικό λάδι — διάλεξε το μέγεθος που σου ταιριάζει.',
+    heading:        'Από το Ελαιώνα στο Τραπέζι σου',
+    description:    'Ποικιλία Κορωνέικη, ψυχρή έκθλιψη στην Ελλάδα. Αυθεντική γεύση σε κάθε σταγόνα.',
     orderNow:       'Παράγγειλε Τώρα',
     photoComingSoon:'Φωτογραφία σύντομα',
     items: {
@@ -244,7 +244,7 @@ const el: typeof en = {
   sustainability: {
     label:         'Η Δέσμευσή μας',
     heading:       'Καλλιέργεια σε Αρμονία με τη Γη',
-    body:          'Εδώ και γενιές η οικογένεια Τάσουλη φροντίζει αυτούς τους ελαιώνες, αφήνοντας τους ρυθμούς των χωραφιών της Ηπείρου να καθοδηγούν τη συγκομιδή μας — γιατί η γη που μας δίνει τα πάντα αξίζει τη φροντίδα μας.',
+    body:          'Εδώ και γενιές, οι παραγωγοί μας φροντίζουν τους ελαιώνες με σεβασμό, αφήνοντας τους φυσικούς ρυθμούς της ελληνικής γης να καθοδηγούν κάθε συγκομιδή — γιατί η γη που μας δίνει τα πάντα αξίζει τη φροντίδα μας.',
     readOurValues: 'Διάβασε τις Αξίες μας',
   },
   testimonials: {
@@ -281,9 +281,9 @@ const el: typeof en = {
   shop: {
     home:          'Αρχική',
     shopBreadcrumb:'Κατάστημα',
-    eyebrow:       'Ποικιλία Κορωνέικη  ·  Ήπειρος, Ελλάδα',
+    eyebrow:       'Ποικιλία Κορωνέικη  ·  Ελλάδα',
     heading:       'Ellaina Έξτρα Παρθένο\nΕλαιόλαδο',
-    description:   'Ψυχρή έκθλιψη εντός ωρών από τη συγκομιδή χειροσυλλεγμένων Κορωνέικων ελιών από τα χωράφια της Ηπείρου, έξω από την Πρέβεζα. Πιστοποιημένο από διαπιστευμένο εργαστήριο — οξύτητα 0,24%, πολύ κάτω από το ευρωπαϊκό όριο 0,80%.',
+    description:   'Ψυχρή έκθλιψη εντός ωρών από τη συγκομιδή χειροσυλλεγμένων Κορωνέικων ελιών από τα χωράφια της Ελλάδας. Πιστοποιημένο από διαπιστευμένο εργαστήριο — οξύτητα 0,24%, πολύ κάτω από το ευρωπαϊκό όριο 0,80%.',
     orderNow:      'Παράγγειλε Τώρα',
     chooseSize:    'Επέλεξε το Μέγεθός σου',
     collection:    'Τυπική Συλλογή',
@@ -297,7 +297,7 @@ const el: typeof en = {
     nutFootnote:   '* NRV = Τιμή Αναφοράς Θρεπτικής Ουσίας',
     addToCart:     'Προσθήκη στο Καλάθι',
     added:         'Προστέθηκε',
-    trustBadges: ['Ψυχρή Έκθλιψη', 'Ποικιλία Κορωνέικη', 'Ήπειρος, Ελλάδα', 'Πιστοποιημένο Εργαστήριο'],
+    trustBadges: ['Ψυχρή Έκθλιψη', 'Ποικιλία Κορωνέικη', 'Ελλάδα', 'Πιστοποιημένο Εργαστήριο'],
   },
   checkoutPage: {
     eyebrow:       "Παραγγελία",
